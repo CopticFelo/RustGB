@@ -48,7 +48,7 @@ pub fn parse_rom(path: &str) {
 
     let rom_checksum = {
         let bytes = &rom[0x14E..=0x14F];
-        ((bytes[0] as u16) << 1) + bytes[1] as u16
+        ((bytes[0] as u16) << 8) | bytes[1] as u16
     };
 
     let info = ROMInfo {
