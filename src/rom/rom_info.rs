@@ -1,13 +1,13 @@
 pub enum CGBMode {
     Monochrome,
-    Color { execlusive: bool },
+    Color { exclusive: bool },
 }
 
 impl std::fmt::Display for CGBMode {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let out = match self {
-            CGBMode::Color { execlusive: true } => "Execlusive",
-            CGBMode::Color { execlusive: false } => "Compatible",
+            CGBMode::Color { exclusive: true } => "Exclusive",
+            CGBMode::Color { exclusive: false } => "Compatible",
             _ => "Monochrome",
         };
         write!(f, "{out}")

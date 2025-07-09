@@ -20,8 +20,8 @@ pub fn parse_rom(path: &str) {
 
     let cgb = rom[0x143];
     let cgb_mode = match cgb {
-        0x80 => CGBMode::Color { execlusive: false },
-        0xC0 => CGBMode::Color { execlusive: true },
+        0x80 => CGBMode::Color { exclusive: false },
+        0xC0 => CGBMode::Color { exclusive: true },
         _ => CGBMode::Monochrome,
     };
 
