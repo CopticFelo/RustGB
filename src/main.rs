@@ -1,7 +1,9 @@
 use std::env;
-use std::fs;
 use std::io;
 use std::io::Write;
+
+mod rom;
+use rom::rom_parser;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -16,9 +18,5 @@ fn main() {
         rom_path = args[1].clone();
     }
     println!("Reading input rom: {rom_path}");
-
-    let rom = fs::read(rom_path).expect("Failed to read ROM file");
-    for byte in rom.iter() {
-        println!("{:#X?}", byte);
-    }
+    rom_parser::parse_rom(&rom_path);
 }
