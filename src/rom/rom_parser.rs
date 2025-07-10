@@ -10,7 +10,6 @@ const NINTENDO: [u8; 48] = [
     0xBB, 0xBB, 0x67, 0x63, 0x6E, 0x0E, 0xEC, 0xCC, 0xDD, 0xDC, 0x99, 0x9F, 0xBB, 0xB9, 0x33, 0x3E,
 ];
 
-pub fn parse_rom(path: &str) {
 const NINTENDO_LOGO_RANGE: RangeInclusive<usize> = 0x104..=0x133;
 const HEADER_SIZE: usize = 0x150;
 const HEADER_RANGE: RangeInclusive<usize> = 0x134..=0x14C;
@@ -23,6 +22,7 @@ const MEM_BANKS_ADDR: usize = 0x149;
 const HEADER_CHECKSUM_ADDR: usize = 0x14D;
 const ROM_CHECKSUM_RANGE: RangeInclusive<usize> = 0x14E..=0x14F;
 
+pub fn parse_rom(path: &str) -> ROMInfo {
     let rom = fs::read(path).unwrap();
     assert!(rom.len() > HEADER_SIZE, "Invalid ROM File (File too short)");
     assert!(
@@ -77,6 +77,7 @@ const ROM_CHECKSUM_RANGE: RangeInclusive<usize> = 0x14E..=0x14F;
     };
     println!("{}", info.title);
     println!("{}", info.cgb);
+    info
 }
 
 fn validate_header_checksum(header: &[u8], checksum: u8) -> bool {

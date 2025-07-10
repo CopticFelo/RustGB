@@ -3,6 +3,7 @@ use std::io;
 use std::io::Write;
 
 mod rom;
+use rom::rom_info;
 use rom::rom_parser;
 
 fn main() {
@@ -18,5 +19,5 @@ fn main() {
         rom_path = args[1].clone();
     }
     println!("Reading input rom: {rom_path}");
-    rom_parser::parse_rom(&rom_path);
+    let info: rom_info::ROMInfo = rom_parser::parse_rom(&rom_path);
 }
