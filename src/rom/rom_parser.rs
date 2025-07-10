@@ -1,5 +1,7 @@
 use crate::rom::rom_info::{CGBMode, ROMInfo};
 use std::fs;
+use std::ops::Range;
+use std::ops::RangeInclusive;
 use std::str;
 
 const NINTENDO: [u8; 48] = [
@@ -9,29 +11,41 @@ const NINTENDO: [u8; 48] = [
 ];
 
 pub fn parse_rom(path: &str) {
+const NINTENDO_LOGO_RANGE: RangeInclusive<usize> = 0x104..=0x133;
+const HEADER_SIZE: usize = 0x150;
+const HEADER_RANGE: RangeInclusive<usize> = 0x134..=0x14C;
+const TITLE_RANGE: Range<usize> = 0x134..0x143;
+const CGB_FLAG_ADDR: usize = 0x143;
+const SGB_FLAG_ADDR: usize = 0x146;
+const CARTRIDGE_TYPE_ADDR: usize = 0x147;
+const ROM_BANKS_ADDR: usize = 0x148;
+const MEM_BANKS_ADDR: usize = 0x149;
+const HEADER_CHECKSUM_ADDR: usize = 0x14D;
+const ROM_CHECKSUM_RANGE: RangeInclusive<usize> = 0x14E..=0x14F;
+
     let rom = fs::read(path).unwrap();
-    assert!(rom.len() > 0x150, "Invalid ROM File (File too short)");
+    assert!(rom.len() > HEADER_SIZE, "Invalid ROM File (File too short)");
     assert!(
         validate_rom(&rom),
         "Invalid ROM File (No Nintendo Logo found)"
     );
 
-    let game_title = String::from_utf8_lossy(&rom[0x134..0x143]).to_string();
+    let game_title = String::from_utf8_lossy(&rom[TITLE_RANGE]).to_string();
 
-    let cgb = rom[0x143];
+    let cgb = rom[CGB_FLAG_ADDR];
     let cgb_mode = match cgb {
         0x80 => CGBMode::Color { exclusive: false },
         0xC0 => CGBMode::Color { exclusive: true },
         _ => CGBMode::Monochrome,
     };
 
-    let sgb = rom[0x146] == 0x3;
+    let sgb = rom[SGB_FLAG_ADDR] == 0x3;
 
-    let cartridge_type = rom[0x147];
+    let cartridge_type = rom[CARTRIDGE_TYPE_ADDR];
 
-    let rom_banks = 2 * (1 << rom[0x148]);
+    let rom_banks = 2 * (1 << rom[ROM_BANKS_ADDR]);
 
-    let mem_banks = match rom[0x149] {
+    let mem_banks = match rom[MEM_BANKS_ADDR] {
         0x0 => 0,
         0x1 => 1,
         0x3 => 4,
@@ -40,14 +54,14 @@ pub fn parse_rom(path: &str) {
         _ => 0,
     };
 
-    let header_checksum = rom[0x14D];
+    let header_checksum = rom[HEADER_CHECKSUM_ADDR];
     assert!(
-        validate_header_checksum(&rom[0x134..=0x14C], header_checksum),
+        validate_header_checksum(&rom[HEADER_RANGE], header_checksum),
         "Invalid Header checksum"
     );
 
     let rom_checksum = {
-        let bytes = &rom[0x14E..=0x14F];
+        let bytes = &rom[ROM_CHECKSUM_RANGE];
         ((bytes[0] as u16) << 8) | bytes[1] as u16
     };
 
@@ -76,5 +90,5 @@ fn validate_header_checksum(header: &[u8], checksum: u8) -> bool {
 }
 
 fn validate_rom(rom: &[u8]) -> bool {
-    rom[0x104..=0x133] == NINTENDO
+    rom[NINTENDO_LOGO_RANGE] == NINTENDO
 }
