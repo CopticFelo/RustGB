@@ -6,6 +6,8 @@ mod rom;
 use rom::rom_info;
 use rom::rom_parser;
 
+mod cpu;
+
 fn main() {
     let args: Vec<String> = env::args().collect();
     let mut rom_path: String = String::new();
