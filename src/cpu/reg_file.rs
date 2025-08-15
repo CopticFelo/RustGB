@@ -1,15 +1,4 @@
 #[derive(Debug)]
-enum Register {
-    A,
-    B,
-    C,
-    D,
-    E,
-    H,
-    L,
-}
-
-#[derive(Debug)]
 struct RegFile {
     a: u8,
     b: u8,
@@ -24,10 +13,9 @@ struct RegFile {
 }
 
 impl Default for RegFile {
-    fn default() -> CPU {
-        CPU {
+    fn default() -> RegFile {
+        RegFile {
             a: 0,
-            b: 0,
             b: 0,
             c: 0,
             d: 0,
@@ -42,12 +30,11 @@ impl Default for RegFile {
 }
 
 impl RegFile {
-    pub fn read_reg(r: Register) -> u8 {
-        // TODO: Implement read_reg
-        // read register value (u8 or u16) based on r
+    pub fn read_u16(hi: &u8, lo: &u8) -> u16 {
+        (*hi as u16) << 8 | *lo as u16
     }
-    pub fn set_reg(r: Register, value: u16) -> bool {
-        // TODO: Implement set_reg
-        // Set register value (u8 or u16) based on r
+    pub fn write_u16(hi: &mut u8, lo: &mut u8, value: u16) {
+        *hi = (value >> 8) as u8;
+        *lo = value as u8;
     }
 }
