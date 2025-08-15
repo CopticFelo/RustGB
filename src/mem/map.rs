@@ -14,7 +14,7 @@ pub struct MemoryMap {
 }
 
 impl MemoryMap {
-    fn read(&self, addr: u16) -> Result<u8, String> {
+    pub fn read(&self, addr: u16) -> Result<u8, String> {
         let addr = addr as usize;
         match addr {
             0x0000..=0x3FFF => self.rom_banks[0].get(addr),
@@ -35,7 +35,7 @@ impl MemoryMap {
         .copied()
         .ok_or(format!("Error: Out of bounds address {}", addr))
     }
-    fn write(&mut self, addr: u16, value: u8) -> Result<(), String> {
+    pub fn write(&mut self, addr: u16, value: u8) -> Result<(), String> {
         let addr = addr as usize;
         let opt_mem_ptr: Option<&mut u8> = match addr {
             0x0000..=0x3FFF => {
