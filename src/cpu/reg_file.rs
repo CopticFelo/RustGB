@@ -1,5 +1,5 @@
 #[derive(Debug)]
-struct RegFile {
+pub struct RegFile {
     pub a: u8,
     pub b: u8,
     pub c: u8,
