@@ -24,11 +24,10 @@ const HEADER_CHECKSUM_ADDR: usize = 0x14D;
 const ROM_CHECKSUM_RANGE: RangeInclusive<usize> = 0x14E..=0x14F;
 
 /// Extracts important ROM data from ROM header and preforms validation
-pub fn parse_rom_header(path: &str) -> ROMInfo {
-    let rom = fs::read(path).unwrap();
+pub fn parse_rom_header(rom: &Vec<u8>) -> ROMInfo {
     assert!(rom.len() > HEADER_SIZE, "Invalid ROM File (File too short)");
     assert!(
-        validate_rom(&rom),
+        validate_rom(rom),
         "Invalid ROM File (No Nintendo Logo found)"
     );
 

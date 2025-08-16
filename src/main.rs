@@ -23,5 +23,5 @@ fn main() {
         rom_path = args[1].clone();
     }
     println!("Reading input rom: {rom_path}");
-    let info: rom_info::ROMInfo = rom_parser::parse_rom(&rom_path);
+    let rom = fs::read(rom_path).expect("Failed to read file");
 }
