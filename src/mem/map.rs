@@ -1,16 +1,17 @@
+#[derive(Debug)]
 pub struct MemoryMap {
-    rom_banks: Vec<Vec<u8>>,
-    active_rom_bank: usize,
-    vram: Vec<Vec<u8>>,
-    active_vram: usize,
-    eram: Vec<Vec<u8>>,
-    active_eram: usize,
-    wram: Vec<Vec<u8>>,
-    active_wram: usize,
-    oam: Vec<u8>,
-    io: Vec<u8>,
-    hram: Vec<u8>,
-    ie: u8,
+    pub rom_banks: Vec<Vec<u8>>,
+    pub active_rom_bank: usize,
+    pub vram: Vec<Vec<u8>>,
+    pub active_vram: usize,
+    pub eram: Vec<Vec<u8>>,
+    pub active_eram: usize,
+    pub wram: Vec<Vec<u8>>,
+    pub active_wram: usize,
+    pub oam: Vec<u8>,
+    pub io: Vec<u8>,
+    pub hram: Vec<u8>,
+    pub ie: u8,
 }
 
 impl MemoryMap {
