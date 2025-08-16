@@ -1,3 +1,12 @@
+use std::fmt;
+
+pub enum Modes {
+    DMG,
+    MGB,
+    CGB,
+    CGBDMG,
+}
+
 #[derive(Debug)]
 pub struct RegFile {
     pub a: u8,
@@ -12,24 +21,27 @@ pub struct RegFile {
     pub pc: u16,
 }
 
-impl Default for RegFile {
-    fn default() -> RegFile {
+impl RegFile {
+    pub fn new(mode: Modes) -> Self {
+        let (a, b, c, d, e, f, h, l): (u8, u8, u8, u8, u8, u8, u8, u8) = match mode {
+            Modes::DMG => (0x1, 0x0, 0x13, 0x00, 0xD8, 0xB0, 0x1, 0x4D),
+            Modes::MGB => (0xFF, 0x0, 0x13, 0x00, 0xD8, 0xB0, 0x1, 0x4D),
+            Modes::CGB => (0x11, 0x0, 0x0, 0xFF, 0x56, 0x80, 0x0, 0xD),
+            Modes::CGBDMG => (0x11, 0x0, 0x0, 0x0, 0x8, 0x80, 0x0, 0x7C),
+        };
         RegFile {
-            a: 0,
-            b: 0,
-            c: 0,
-            d: 0,
-            e: 0,
-            f: 0,
-            h: 0,
-            l: 0,
+            a,
+            b,
+            c,
+            d,
+            e,
+            f,
+            h,
+            l,
             sp: 0xFFFE,
             pc: 0x100,
         }
     }
-}
-
-impl RegFile {
     pub fn read_u16(hi: &u8, lo: &u8) -> u16 {
         (*hi as u16) << 8 | *lo as u16
     }
