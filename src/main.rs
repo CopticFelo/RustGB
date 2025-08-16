@@ -1,13 +1,12 @@
-use std::env;
-use std::io;
 use std::io::Write;
+use std::{env, fs, io};
 
 mod rom;
 use rom::rom_info;
 use rom::rom_parser;
 
 mod cpu;
-
+mod emulator;
 mod mem;
 
 fn main() {
@@ -24,4 +23,6 @@ fn main() {
     }
     println!("Reading input rom: {rom_path}");
     let rom = fs::read(rom_path).expect("Failed to read file");
+    let info: rom_info::ROMInfo = rom_parser::parse_rom_header(&rom);
+    emulator::init_emulation(rom, info);
 }
