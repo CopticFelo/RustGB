@@ -24,7 +24,7 @@ const HEADER_CHECKSUM_ADDR: usize = 0x14D;
 const ROM_CHECKSUM_RANGE: RangeInclusive<usize> = 0x14E..=0x14F;
 
 /// Extracts important ROM data from ROM header and preforms validation
-pub fn parse_rom(path: &str) -> ROMInfo {
+pub fn parse_rom_header(path: &str) -> ROMInfo {
     let rom = fs::read(path).unwrap();
     assert!(rom.len() > HEADER_SIZE, "Invalid ROM File (File too short)");
     assert!(
