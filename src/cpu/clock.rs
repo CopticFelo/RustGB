@@ -1,5 +1,5 @@
-#[derive(Debug)]
 struct Clock {
+#[derive(Debug, Default)]
     m_cycles: u32,
     t_cycles: u64,
 }
