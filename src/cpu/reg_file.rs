@@ -1,5 +1,3 @@
-use std::fmt;
-
 pub enum Modes {
     DMG,
     MGB,
