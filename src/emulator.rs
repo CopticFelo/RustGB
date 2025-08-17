@@ -11,7 +11,7 @@ pub fn init_emulation(rom: Vec<u8>, header_data: ROMInfo) {
         rom_banks.push(bank.to_vec());
     }
     drop(rom);
-    //TODO: Make constructor for MemoryMap instead of making all fields pub
+    // TODO: Make constructor for MemoryMap instead of making all fields pub
     let memory = map::MemoryMap {
         active_rom_bank: 1,
         rom_banks,

@@ -40,6 +40,7 @@ impl RegFile {
             pc: 0x100,
         }
     }
+    // TODO: Probably should move these to some ALU file as these functions are used everywhere
     pub fn read_u16(lo: &u8, hi: &u8) -> u16 {
         (*hi as u16) << 8 | *lo as u16
     }
