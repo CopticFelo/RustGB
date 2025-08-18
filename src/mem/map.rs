@@ -1,20 +1,42 @@
+use crate::rom::rom_info::ROMInfo;
+
 #[derive(Debug)]
 pub struct MemoryMap {
-    pub rom_banks: Vec<Vec<u8>>,
-    pub active_rom_bank: usize,
-    pub vram: Vec<Vec<u8>>,
-    pub active_vram: usize,
-    pub eram: Vec<Vec<u8>>,
-    pub active_eram: usize,
-    pub wram: Vec<Vec<u8>>,
-    pub active_wram: usize,
-    pub oam: Vec<u8>,
-    pub io: Vec<u8>,
-    pub hram: Vec<u8>,
-    pub ie: u8,
+    rom_banks: Vec<Vec<u8>>,
+    active_rom_bank: usize,
+    vram: Vec<Vec<u8>>,
+    active_vram: usize,
+    eram: Vec<Vec<u8>>,
+    active_eram: usize,
+    wram: Vec<Vec<u8>>,
+    active_wram: usize,
+    oam: Vec<u8>,
+    io: Vec<u8>,
+    hram: Vec<u8>,
+    ie: u8,
 }
 
 impl MemoryMap {
+    pub fn init_rom(rom: Vec<u8>, header_data: ROMInfo) -> Self {
+        let mut rom_banks: Vec<Vec<u8>> = Vec::new();
+        for bank in rom.chunks(0x4000) {
+            rom_banks.push(bank.to_vec());
+        }
+        Self {
+            active_rom_bank: 1,
+            rom_banks,
+            vram: vec![vec![0; 0x2000]; 2],
+            active_vram: 0,
+            eram: vec![vec![0; 0x2000]; header_data.mem_banks as usize],
+            active_eram: 1,
+            wram: vec![vec![0; 0x2000]; 8],
+            active_wram: 1,
+            oam: vec![0; 0x100],
+            io: vec![0; 0x80],
+            hram: vec![0; 0x7E],
+            ie: 0,
+        }
+    }
     pub fn read(&self, addr: u16) -> Result<u8, String> {
         let addr = addr as usize;
         match addr {
