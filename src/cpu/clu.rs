@@ -1,5 +1,5 @@
 use crate::{
-    cpu::{clock::Clock, reg_file::RegFile},
+    cpu::{alu, clock::Clock, reg_file::RegFile},
     mem::map::MemoryMap,
 };
 
@@ -34,7 +34,7 @@ impl<'a> CLU<'a> {
         let opcode = self.fetch();
         match opcode {
             0x0 => (),
-            0xC3 => self.registers.pc = RegFile::read_u16(&self.fetch(), &self.fetch()),
+            0xC3 => self.registers.pc = alu::read_u16(&self.fetch(), &self.fetch()),
             _ => eprintln!("Unimplemented"),
         }
     }
