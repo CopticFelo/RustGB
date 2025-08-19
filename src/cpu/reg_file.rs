@@ -1,3 +1,5 @@
+use crate::cpu::alu::{self, read_u16};
+
 pub enum Modes {
     DMG,
     MGB,
@@ -38,6 +40,29 @@ impl RegFile {
             l,
             sp: 0xFFFE,
             pc: 0x100,
+        }
+    }
+
+    pub fn match_register(&mut self, num: u8) -> Result<&mut u8, &str> {
+        match num {
+            0x0 => Ok(&mut self.b),
+            0x1 => Ok(&mut self.c),
+            0x2 => Ok(&mut self.d),
+            0x3 => Ok(&mut self.e),
+            0x4 => Ok(&mut self.h),
+            0x5 => Ok(&mut self.l),
+            0x7 => Ok(&mut self.a),
+            _ => Err("Invalid r8 index"),
+        }
+    }
+
+    pub fn match_condition(&self, num: u8) -> Result<bool, &str> {
+        match num {
+            0x0 => Ok(alu::read_bits(self.f, 4, 1) != 1),
+            0x1 => Ok(alu::read_bits(self.f, 4, 1) == 1),
+            0x2 => Ok(alu::read_bits(self.f, 7, 1) != 1),
+            0x3 => Ok(alu::read_bits(self.f, 7, 1) == 1),
+            _ => Err("Invalid condition parameter"),
         }
     }
 }
