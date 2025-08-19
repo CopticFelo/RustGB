@@ -5,18 +5,23 @@ use crate::{
 
 pub struct CLU<'a> {
     registers: &'a mut RegFile,
-    memory: &'a MemoryMap,
+    memory: &'a mut MemoryMap,
     clock: &'a mut Clock,
 }
 
 impl<'a> CLU<'a> {
-    pub fn init(registers: &'a mut RegFile, memory: &'a MemoryMap, clock: &'a mut Clock) -> Self {
+    pub fn init(
+        registers: &'a mut RegFile,
+        memory: &'a mut MemoryMap,
+        clock: &'a mut Clock,
+    ) -> Self {
         Self {
             registers,
             memory,
             clock,
         }
     }
+
     fn fetch(&mut self) -> u8 {
         let result = match self.memory.read(self.registers.pc) {
             Ok(op) => op,

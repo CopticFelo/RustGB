@@ -6,8 +6,8 @@ use crate::rom::rom_info::ROMInfo;
 
 pub fn init_emulation(rom: Vec<u8>, header_data: ROMInfo) {
     let mut registers = RegFile::new(Modes::DMG);
-    let memory = map::MemoryMap::init_rom(rom, header_data);
+    let mut memory = map::MemoryMap::init_rom(rom, header_data);
     let mut clock = Clock::default();
-    let mut clu = CLU::init(&mut registers, &memory, &mut clock);
     clu.start_exec_cycle();
+    let mut clu = CLU::init(&mut registers, &mut memory, &mut clock);
 }
