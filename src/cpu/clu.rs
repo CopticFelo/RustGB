@@ -64,7 +64,7 @@ impl<'a> CLU<'a> {
                 let offset_address = self.registers.pc as i16 + self.fetch() as i16;
                 self.registers.pc = offset_address as u16;
             } else {
-                self.registers.pc += alu::read_u16(&self.fetch(), &self.fetch());
+                self.registers.pc = alu::read_u16(&self.fetch(), &self.fetch());
             }
         }
         Ok(())
