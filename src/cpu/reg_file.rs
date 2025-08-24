@@ -1,4 +1,4 @@
-use crate::cpu::alu::{self, read_u16};
+use crate::cpu::alu::{self};
 
 pub enum Modes {
     DMG,
