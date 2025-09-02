@@ -4,9 +4,9 @@ use crate::{
 };
 
 pub struct CLU<'a> {
-    registers: &'a mut RegFile,
-    memory: &'a mut MemoryMap,
-    clock: &'a mut Clock,
+    pub registers: &'a mut RegFile,
+    pub memory: &'a mut MemoryMap,
+    pub clock: &'a mut Clock,
 }
 
 impl<'a> CLU<'a> {
