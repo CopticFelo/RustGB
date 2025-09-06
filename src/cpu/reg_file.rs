@@ -1,11 +1,35 @@
 use crate::cpu::alu::{self};
 
+// TODO: Use Idiomatic rust names
 pub enum Modes {
     DMG,
     MGB,
     CGB,
     CGBDMG,
 }
+
+pub enum Flag {
+    Zero,
+    Subtract,
+    HalfCarry,
+    Carry,
+}
+
+impl Flag {
+    fn bit_index(&self) -> u8 {
+        match self {
+            Flag::Zero => ZERO,
+            Flag::Subtract => SUB,
+            Flag::HalfCarry => HALFCARRY,
+            Flag::Carry => CARRY,
+        }
+    }
+}
+
+const ZERO: u8 = 7;
+const SUB: u8 = 6;
+const HALFCARRY: u8 = 5;
+const CARRY: u8 = 4;
 
 #[derive(Debug)]
 pub struct RegFile {
@@ -56,6 +80,7 @@ impl RegFile {
         }
     }
 
+    // TODO: Refactor to use read_flag
     pub fn match_condition(&self, num: u8) -> Result<bool, &str> {
         match num {
             0x0 => Ok(alu::read_bits(self.f, 4, 1) != 1),
@@ -64,5 +89,30 @@ impl RegFile {
             0x3 => Ok(alu::read_bits(self.f, 7, 1) == 1),
             _ => Err("Invalid condition parameter"),
         }
+    }
+
+    pub fn read_flag(&self, flag: Flag) -> bool {
+        let index = flag.bit_index();
+        let value = alu::read_bits(self.f, index, 1);
+        match value {
+            1 => true,
+            0 => false,
+            _ => {
+                eprintln!("WARNING: alu::read_bits returned {value} for single bit read");
+                true
+            }
+        }
+    }
+
+    pub fn set_flag(&mut self, flag: Flag, value: Option<bool>) -> Result<(), String> {
+        let index = flag.bit_index();
+        match value {
+            Some(bit) => alu::write_bits(&mut self.f, index, 1, bit as u8)?,
+            None => {
+                let bit: bool = self.read_flag(flag);
+                alu::write_bits(&mut self.f, index, 1, !bit as u8)?
+            }
+        }
+        Ok(())
     }
 }
