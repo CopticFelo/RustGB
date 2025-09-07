@@ -22,7 +22,7 @@ impl<'a> CLU<'a> {
         }
     }
 
-    fn fetch(&mut self) -> u8 {
+    pub fn fetch(&mut self) -> u8 {
         let result = match self.memory.read(self.registers.pc) {
             Ok(op) => op,
             // HACK: Probably improper error handling
