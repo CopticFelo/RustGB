@@ -1,3 +1,5 @@
+use crate::cpu::{clu::CLU, reg_file::Flag};
+
 pub fn read_u16(lo: &u8, hi: &u8) -> u16 {
     (*hi as u16) << 8 | *lo as u16
 }
@@ -26,5 +28,32 @@ pub fn write_bits(target: &mut u8, index: u8, length: u8, bits: u8) -> Result<()
     let mask: u8 = ((1 << length) - 1) << index;
     *target = (*target & !mask) | (bits << index);
 
+    Ok(())
+}
+
+pub fn add(opcode: u8, clu: &mut CLU) -> Result<(), String> {
+    let mut src = read_bits(opcode, 0, 3);
+    if opcode == 0xC6 || opcode == 0xCE {
+        src = clu.fetch();
+    } else if src == 6 {
+        clu.clock.tick();
+        src = clu
+            .memory
+            .read(read_u16(&clu.registers.l, &clu.registers.h))?;
+    } else {
+        src = *clu.registers.match_register(src)?;
+    }
+    let addend = if read_bits(opcode, 3, 1) == 1 && clu.registers.read_flag(Flag::Carry) {
+        src + 1
+    } else {
+        src
+    };
+    let half_carry = (clu.registers.a & 0xF) + (addend & 0xF) > 0xF;
+    let (res, carry) = clu.registers.a.overflowing_add(addend);
+    let zero = res == 0;
+    clu.registers.set_flag(Flag::HalfCarry, Some(half_carry))?;
+    clu.registers.set_flag(Flag::Carry, Some(carry))?;
+    clu.registers.set_flag(Flag::Zero, Some(zero))?;
+    clu.registers.set_flag(Flag::Subtract, Some(false))?;
     Ok(())
 }
