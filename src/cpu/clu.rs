@@ -90,6 +90,7 @@ impl<'a> CLU<'a> {
                 0xE9 => self.registers.pc = alu::read_u16(&self.registers.l, &self.registers.h), // JP hl
                 0x40..0x80 => self.load_from(opcode)?, // LD r8, r8 | LD r8, [hl] | LD [hl], r8
                 0x80..0x90 | 0xC6 | 0xCE => alu::add(opcode, self)?, // ADD/ADC A, r8 | ADD/ADC A, [hl] | ADD/ADC A, imm8
+                0x90..0xA0 | 0xD6 | 0xDE => alu::sub(opcode, self)?, // SUB/SBC A, r8 | SUB/SBC A, [hl] | SUB/SBC A, imm8
                 _ => eprintln!("Unimplemented"),
             }
         }

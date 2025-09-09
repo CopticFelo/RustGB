@@ -57,3 +57,31 @@ pub fn add(opcode: u8, clu: &mut CLU) -> Result<(), String> {
     clu.registers.set_flag(Flag::Subtract, Some(false))?;
     Ok(())
 }
+
+pub fn sub(opcode: u8, clu: &mut CLU) -> Result<(), String> {
+    // FIX: This Code block right here is repeated 3 times so far
+    let mut src = read_bits(opcode, 0, 3);
+    if opcode == 0xD6 || opcode == 0xDE {
+        src = clu.fetch();
+    } else if src == 6 {
+        clu.clock.tick();
+        src = clu
+            .memory
+            .read(read_u16(&clu.registers.l, &clu.registers.h))?;
+    } else {
+        src = *clu.registers.match_register(src)?;
+    }
+    let subtrahend = if read_bits(opcode, 3, 1) == 1 && clu.registers.read_flag(Flag::Carry) {
+        src + 1
+    } else {
+        src
+    };
+    let half_carry = (clu.registers.a & 0xF) < (src & 0xF);
+    let (res, carry) = clu.registers.a.overflowing_sub(subtrahend);
+    let zero = res == 0;
+    clu.registers.set_flag(Flag::HalfCarry, Some(half_carry))?;
+    clu.registers.set_flag(Flag::Carry, Some(carry))?;
+    clu.registers.set_flag(Flag::Zero, Some(zero))?;
+    clu.registers.set_flag(Flag::Subtract, Some(true))?;
+    Ok(())
+}
