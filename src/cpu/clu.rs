@@ -3,18 +3,14 @@ use crate::{
     mem::map::MemoryMap,
 };
 
-pub struct CLU<'a> {
-    pub registers: &'a mut RegFile,
-    pub memory: &'a mut MemoryMap,
-    pub clock: &'a mut Clock,
+pub struct CLU {
+    pub registers: RegFile,
+    pub memory: MemoryMap,
+    pub clock: Clock,
 }
 
-impl<'a> CLU<'a> {
-    pub fn init(
-        registers: &'a mut RegFile,
-        memory: &'a mut MemoryMap,
-        clock: &'a mut Clock,
-    ) -> Self {
+impl CLU {
+    pub fn init(registers: RegFile, memory: MemoryMap, clock: Clock) -> Self {
         Self {
             registers,
             memory,
