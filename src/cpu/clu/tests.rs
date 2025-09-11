@@ -41,3 +41,18 @@ fn ld_hl() -> Result<(), String> {
     );
     Ok(())
 }
+
+#[test]
+fn ld_to_hl() -> Result<(), String> {
+    let mut clu = get_clu(vec![0x77, 0xDD]);
+    clu.registers.a = 0xB1;
+    alu::write_u16(&mut clu.registers.l, &mut clu.registers.h, 0xC001);
+    let _ = clu.start_exec_cycle();
+    assert_eq!(
+        clu.memory
+            .read(alu::read_u16(&clu.registers.l, &clu.registers.h))
+            .unwrap(),
+        clu.registers.a
+    );
+    Ok(())
+}
