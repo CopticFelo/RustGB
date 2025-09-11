@@ -1,5 +1,5 @@
 use crate::cpu::clock::Clock;
-use crate::cpu::clu::CLU;
+use crate::cpu::clu::clu::CLU;
 use crate::cpu::reg_file::{Modes, RegFile};
 use crate::mem::map;
 use crate::rom::rom_info::ROMInfo;

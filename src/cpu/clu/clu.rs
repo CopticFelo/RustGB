@@ -1,5 +1,5 @@
 use crate::{
-    cpu::{alu, clock::Clock, reg_file::RegFile},
+    cpu::{alu::alu, clock::Clock, reg_file::RegFile},
     mem::map::MemoryMap,
 };
 
