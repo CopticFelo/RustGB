@@ -1,7 +1,7 @@
 #[derive(Debug, Default)]
 pub struct Clock {
-    m_cycles: u32,
-    t_cycles: u64,
+    pub m_cycles: u32,
+    pub t_cycles: u64,
 }
 
 // HACK: Incomplete understanding of how clocks work
