@@ -80,13 +80,12 @@ impl RegFile {
         }
     }
 
-    // TODO: Refactor to use read_flag
     pub fn match_condition(&self, num: u8) -> Result<bool, &str> {
         match num {
-            0x0 => Ok(alu::read_bits(self.f, 4, 1) != 1),
-            0x1 => Ok(alu::read_bits(self.f, 4, 1) == 1),
-            0x2 => Ok(alu::read_bits(self.f, 7, 1) != 1),
-            0x3 => Ok(alu::read_bits(self.f, 7, 1) == 1),
+            0x0 => Ok(!self.read_flag(Flag::Zero)),
+            0x1 => Ok(self.read_flag(Flag::Zero)),
+            0x2 => Ok(!self.read_flag(Flag::Carry)),
+            0x3 => Ok(self.read_flag(Flag::Carry)),
             _ => Err("Invalid condition parameter"),
         }
     }
