@@ -3,7 +3,7 @@ use crate::{
         alu::alu,
         clock::Clock,
         clu::clu::CLU,
-        reg_file::{Modes, RegFile},
+        reg_file::{Flag, Modes, RegFile},
     },
     mem::map::MemoryMap,
     rom::rom_info::ROMInfo,
@@ -57,5 +57,34 @@ fn ld_hl_a() -> Result<(), String> {
         clu.registers.a
     );
     assert_eq!(clu.clock.m_cycles, 3);
+    Ok(())
+}
+
+#[test]
+fn jmp() -> Result<(), String> {
+    let mut clu = get_clu(vec![0xC3, 0x4, 0x0, 0xDD, 0xDD]);
+    let _ = clu.start_exec_cycle();
+    assert_eq!(clu.registers.pc, 5);
+    assert_eq!(clu.clock.m_cycles, 5);
+    Ok(())
+}
+
+#[test]
+fn jmp_nz() -> Result<(), String> {
+    // Jumps
+    let mut clu = get_clu(vec![0xC2, 0x4, 0x0, 0xDD, 0xDD]);
+    let _ = clu.registers.set_flag(Flag::Zero, Some(false));
+    let _ = clu.start_exec_cycle();
+    assert_eq!(clu.registers.pc, 5);
+    assert_eq!(clu.clock.m_cycles, 5);
+
+    // Doesn't jump
+    clu.registers.pc = 0;
+    clu.clock.m_cycles = 0;
+    clu.clock.t_cycles = 0;
+    let _ = clu.registers.set_flag(Flag::Zero, Some(true));
+    let _ = clu.start_exec_cycle();
+    assert_eq!(clu.registers.pc, 4);
+    assert_eq!(clu.clock.m_cycles, 4);
     Ok(())
 }
