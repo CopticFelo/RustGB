@@ -24,6 +24,7 @@ fn ld_b_l() -> Result<(), String> {
     let mut clu = get_clu(vec![0x45, 0xDD]);
     let _ = clu.start_exec_cycle();
     assert_eq!(clu.registers.l, clu.registers.b);
+    assert_eq!(clu.clock.m_cycles, 2);
     Ok(())
 }
 
@@ -39,6 +40,7 @@ fn ld_b_hl() -> Result<(), String> {
             .unwrap(),
         clu.registers.b
     );
+    assert_eq!(clu.clock.m_cycles, 3);
     Ok(())
 }
 
@@ -54,5 +56,6 @@ fn ld_hl_a() -> Result<(), String> {
             .unwrap(),
         clu.registers.a
     );
+    assert_eq!(clu.clock.m_cycles, 3);
     Ok(())
 }
