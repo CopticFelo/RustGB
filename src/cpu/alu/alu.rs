@@ -55,6 +55,7 @@ pub fn add(opcode: u8, clu: &mut CLU) -> Result<(), String> {
     clu.registers.set_flag(Flag::Carry, Some(carry))?;
     clu.registers.set_flag(Flag::Zero, Some(zero))?;
     clu.registers.set_flag(Flag::Subtract, Some(false))?;
+    clu.registers.a = res;
     Ok(())
 }
 
@@ -83,5 +84,6 @@ pub fn sub(opcode: u8, clu: &mut CLU) -> Result<(), String> {
     clu.registers.set_flag(Flag::Carry, Some(carry))?;
     clu.registers.set_flag(Flag::Zero, Some(zero))?;
     clu.registers.set_flag(Flag::Subtract, Some(true))?;
+    clu.registers.a = res;
     Ok(())
 }
