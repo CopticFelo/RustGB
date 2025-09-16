@@ -77,7 +77,7 @@ pub fn sub(opcode: u8, clu: &mut CLU) -> Result<(), String> {
     } else {
         src
     };
-    let half_carry = (clu.registers.a & 0xF) < (src & 0xF);
+    let half_carry = (clu.registers.a & 0xF) < (subtrahend & 0xF);
     let (res, carry) = clu.registers.a.overflowing_sub(subtrahend);
     let zero = res == 0;
     clu.registers.set_flag(Flag::HalfCarry, Some(half_carry))?;
