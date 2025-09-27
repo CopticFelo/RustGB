@@ -3,6 +3,26 @@ use crate::{
     mem::map::MemoryMap,
 };
 
+pub enum R8 {
+    Register(u8),
+    Hl(u16),
+    N8(u8),
+}
+
+impl R8 {
+    pub fn get_r8_param(n8: bool, opcode: u8, index: u8, clu: &mut CLU) -> Self {
+        if n8 {
+            return Self::N8(clu.fetch());
+        }
+        let param = alu::read_bits(opcode, index, 3);
+        if param == 6 {
+            Self::Hl(alu::read_u16(&clu.registers.l, &clu.registers.h))
+        } else {
+            Self::Register(param)
+        }
+    }
+}
+
 pub struct CLU {
     pub registers: RegFile,
     pub memory: MemoryMap,
