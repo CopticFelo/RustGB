@@ -3,10 +3,15 @@ use crate::{
     mem::map::MemoryMap,
 };
 
+// the r8 param is a 3 bit param in the instruction opcode
+// it represents an 8-bit register
+// or the memory value (8-bit) pointed to by the 16-bit hl register
+// from 0-7 in order (b,c,d,e,h,l,[hl],a)
 pub enum R8 {
     Register(u8),
     Hl(u16),
-    N8(u8),
+    N8(u8), // this is added for convinience some instructions that take r8 have an identical
+            // version that takes imm8 (i.e the next byte on the rom)
 }
 
 impl R8 {
