@@ -27,7 +27,7 @@ fn main() {
     }
     #[cfg(debug_assertions)]
     {
-        rom_path = "/Users/felo/Emulation/GB/tetris.gb".to_string();
+        rom_path = "/home/felo/dev/rust/RustGB/test_roms/tetris.gb".to_string();
     }
     println!("Reading input rom: {rom_path}");
     let rom = fs::read(rom_path).expect("Failed to read file");
