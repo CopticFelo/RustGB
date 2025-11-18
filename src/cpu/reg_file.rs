@@ -115,7 +115,7 @@ impl RegFile {
         Ok(())
     }
 
-    /// takes a &[u8; 4] and sets the four flags accordingly in the following order
+    /// Takes a &[u8; 4] and sets the four flags accordingly in the following order
     /// [Z, N, H, C]
     /// see https://gbdev.io/gb-opcodes/optables/
     pub fn set_all_flags(&mut self, flags: &[u8; 4]) -> Result<(), String> {
