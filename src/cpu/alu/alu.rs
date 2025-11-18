@@ -51,6 +51,7 @@ pub fn add(opcode: u8, clu: &mut CLU) -> Result<(), String> {
     let half_carry = (clu.registers.a & 0xF) + (addend & 0xF) > 0xF;
     let (res, carry) = clu.registers.a.overflowing_add(addend);
     let zero = res == 0;
+    //FIX: Use set_all_flags()
     clu.registers.set_flag(Flag::HalfCarry, Some(half_carry))?;
     clu.registers.set_flag(Flag::Carry, Some(carry))?;
     clu.registers.set_flag(Flag::Zero, Some(zero))?;
@@ -80,6 +81,7 @@ pub fn sub(opcode: u8, clu: &mut CLU) -> Result<(), String> {
     let half_carry = (clu.registers.a & 0xF) < (subtrahend & 0xF);
     let (res, carry) = clu.registers.a.overflowing_sub(subtrahend);
     let zero = res == 0;
+    //FIX: Use set_all_flags()
     clu.registers.set_flag(Flag::HalfCarry, Some(half_carry))?;
     clu.registers.set_flag(Flag::Carry, Some(carry))?;
     clu.registers.set_flag(Flag::Zero, Some(zero))?;

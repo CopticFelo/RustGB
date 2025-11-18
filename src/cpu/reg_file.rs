@@ -114,4 +114,14 @@ impl RegFile {
         }
         Ok(())
     }
+
+    /// takes a &[u8; 4] and sets the four flags accordingly in the following order
+    /// [Z, N, H, C]
+    /// see https://gbdev.io/gb-opcodes/optables/
+    pub fn set_all_flags(&mut self, flags: &[u8; 4]) -> Result<(), String> {
+        for (index, &bit) in flags.iter().enumerate() {
+            alu::write_bits(&mut self.f, (7 - index) as u8, 1, bit);
+        }
+        Ok(())
+    }
 }
