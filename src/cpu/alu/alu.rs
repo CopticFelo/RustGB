@@ -1,4 +1,10 @@
-use crate::cpu::{clu::clu::CLU, reg_file::Flag};
+use crate::cpu::{
+    clu::clu::{
+        CLU,
+        R8::{self, *},
+    },
+    reg_file::Flag,
+};
 
 pub fn read_u16(lo: &u8, hi: &u8) -> u16 {
     (*hi as u16) << 8 | *lo as u16
@@ -87,5 +93,21 @@ pub fn sub(opcode: u8, clu: &mut CLU) -> Result<(), String> {
     clu.registers.set_flag(Flag::Zero, Some(zero))?;
     clu.registers.set_flag(Flag::Subtract, Some(true))?;
     clu.registers.a = res;
+    Ok(())
+}
+
+//NOTE: Untested
+pub fn and(opcode: u8, clu: &mut CLU) -> Result<(), String> {
+    let r8_param = R8::get_r8_param(opcode == 0xE6, opcode, 0, clu);
+    let src = match r8_param {
+        Register(n) | R8::N8(n) => n,
+        Hl(addr) => {
+            clu.clock.tick();
+            clu.memory.read(addr)?
+        }
+    };
+    clu.registers.a &= src;
+    clu.registers
+        .set_all_flags(&[(clu.registers.a == 0) as u8, 0, 1, 0])?;
     Ok(())
 }

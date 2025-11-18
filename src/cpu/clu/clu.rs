@@ -112,6 +112,7 @@ impl CLU {
                 0x40..0x80 => self.load_from(opcode)?, // LD r8, r8 | LD r8, [hl] | LD [hl], r8
                 0x80..0x90 | 0xC6 | 0xCE => alu::add(opcode, self)?, // ADD/ADC A, r8 | ADD/ADC A, [hl] | ADD/ADC A, imm8
                 0x90..0xA0 | 0xD6 | 0xDE => alu::sub(opcode, self)?, // SUB/SBC A, r8 | SUB/SBC A, [hl] | SUB/SBC A, imm8
+                0xA0..0xA8 | 0xE6 => alu::and(opcode, self)?, // AND A, r8 | AND A, [hl] | AND A, imm8
                 0xD3 | 0xDB | 0xDD | 0xE3 | 0xE4 | 0xEB..0xEF | 0xF4 | 0xFC | 0xFD => {
                     return Err(format!("Illegal operation {opcode}"));
                 }
