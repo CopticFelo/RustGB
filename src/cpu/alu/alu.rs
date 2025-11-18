@@ -98,13 +98,10 @@ pub fn sub(opcode: u8, clu: &mut CLU) -> Result<(), String> {
 
 //NOTE: Untested
 pub fn and(opcode: u8, clu: &mut CLU) -> Result<(), String> {
-    let r8_param = R8::get_r8_param(opcode == 0xE6, opcode, 0, clu);
+    let r8_param = R8::get_r8_param(opcode == 0xE6, opcode, 0, clu)?;
     let src = match r8_param {
-        Register(n) | R8::N8(n) => n,
-        Hl(addr) => {
-            clu.clock.tick();
-            clu.memory.read(addr)?
-        }
+        Register { reg: _, value } | R8::Hl { addr: _, value } => value,
+        N8(n) => n,
     };
     clu.registers.a &= src;
     clu.registers

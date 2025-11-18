@@ -8,22 +8,30 @@ use crate::{
 // or the memory value (8-bit) pointed to by the 16-bit hl register
 // from 0-7 in order (b,c,d,e,h,l,[hl],a)
 pub enum R8 {
-    Register(u8),
-    Hl(u16),
+    Register { reg: u8, value: u8 },
+    Hl { addr: u16, value: u8 },
     N8(u8), // this is added for convinience some instructions that take r8 have an identical
             // version that takes imm8 (i.e the next byte on the rom)
 }
 
 impl R8 {
-    pub fn get_r8_param(n8: bool, opcode: u8, index: u8, clu: &mut CLU) -> Self {
+    pub fn get_r8_param(n8: bool, opcode: u8, index: u8, clu: &mut CLU) -> Result<Self, String> {
         if n8 {
-            return Self::N8(clu.fetch());
+            return Ok(Self::N8(clu.fetch()));
         }
         let param = alu::read_bits(opcode, index, 3);
         if param == 6 {
-            Self::Hl(alu::read_u16(&clu.registers.l, &clu.registers.h))
+            let addr = alu::read_u16(&clu.registers.l, &clu.registers.h);
+            clu.clock.tick();
+            Ok(Self::Hl {
+                addr,
+                value: clu.memory.read(addr)?,
+            })
         } else {
-            Self::Register(param)
+            Ok(Self::Register {
+                reg: param,
+                value: *clu.registers.match_register(param)?,
+            })
         }
     }
 }
