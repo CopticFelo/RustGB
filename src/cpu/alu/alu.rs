@@ -108,3 +108,16 @@ pub fn and(opcode: u8, clu: &mut CLU) -> Result<(), String> {
         .set_all_flags(&[(clu.registers.a == 0) as u8, 0, 1, 0])?;
     Ok(())
 }
+
+//NOTE: Untested
+pub fn xor(opcode: u8, clu: &mut CLU) -> Result<(), String> {
+    let r8_param = R8::get_r8_param(opcode == 0xEE, opcode, 0, clu)?;
+    let src = match r8_param {
+        Register { reg: _, value } | R8::Hl { addr: _, value } => value,
+        N8(n) => n,
+    };
+    clu.registers.a ^= src;
+    clu.registers
+        .set_all_flags(&[(clu.registers.a == 0) as u8, 0, 0, 0])?;
+    Ok(())
+}
