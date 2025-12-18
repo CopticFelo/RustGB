@@ -121,3 +121,32 @@ pub fn xor(opcode: u8, clu: &mut CLU) -> Result<(), String> {
         .set_all_flags(&[(clu.registers.a == 0) as u8, 0, 0, 0])?;
     Ok(())
 }
+
+//NOTE: Untested
+pub fn or(opcode: u8, clu: &mut CLU) -> Result<(), String> {
+    let r8_param = R8::get_r8_param(opcode == 0xF6, opcode, 0, clu)?;
+    let src = match r8_param {
+        Register { reg: _, value } | R8::Hl { addr: _, value } => value,
+        N8(n) => n,
+    };
+    clu.registers.a |= src;
+    clu.registers
+        .set_all_flags(&[(clu.registers.a == 0) as u8, 0, 0, 0])?;
+    Ok(())
+}
+
+//NOTE: Untested
+pub fn cp(opcode: u8, clu: &mut CLU) -> Result<(), String> {
+    //NOTE: This code is also valid for sub, probably need to do that as well there
+    let r8_param = R8::get_r8_param(opcode == 0xFE, opcode, 0, clu)?;
+    let subtrahend = match r8_param {
+        Register { reg: _, value } | R8::Hl { addr: _, value } => value,
+        N8(n) => n,
+    };
+    let half_carry = (clu.registers.a & 0xF) < (subtrahend & 0xF);
+    let (res, carry) = clu.registers.a.overflowing_sub(subtrahend);
+    let zero = res == 0;
+    clu.registers
+        .set_all_flags(&[zero as u8, 1, half_carry as u8, carry as u8])?;
+    Ok(())
+}
