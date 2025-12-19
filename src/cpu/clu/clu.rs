@@ -66,23 +66,20 @@ impl CLU {
     }
 
     fn load_from(&mut self, opcode: u8) -> Result<(), String> {
-        let mut src = alu::read_bits(opcode, 0, 3);
-        if src == 6 {
-            self.clock.tick();
-            src = self
-                .memory
-                .read(alu::read_u16(&self.registers.l, &self.registers.h))?;
-        } else {
-            src = *self.registers.match_register(src)?;
-        }
-        let dst = alu::read_bits(opcode, 3, 3);
-        if dst == 6 {
-            self.clock.tick();
-            self.memory
-                .write(alu::read_u16(&self.registers.l, &self.registers.h), src)?;
-        } else {
-            *self.registers.match_register(dst)? = src;
-        }
+        let src_param = R8::get_r8_param(false, opcode, 0, self)?;
+        let src = match src_param {
+            R8::Register { reg: _, value } | R8::Hl { addr: _, value } => value,
+            _ => return Err("invalid src in ld instruction: n8".to_string()),
+        };
+        let dst_param = R8::get_r8_param(false, opcode, 3, self)?;
+        match dst_param {
+            // IMPORTANT: because get_r8_param() alr calls clock.tick() when reading the value,
+            // you don't need to call clock.tick again when writing as this part doesn't even
+            // need a cycle for reading but only one for writing, so writing here is free
+            R8::Hl { addr, value: _ } => self.memory.write(addr, src)?,
+            R8::Register { reg, value: _ } => *self.registers.match_register(reg)? = src,
+            R8::N8(n) => return Err(format!("invalid dst in ld instruction {}", n)),
+        };
         Ok(())
     }
 
