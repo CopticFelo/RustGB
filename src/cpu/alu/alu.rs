@@ -47,7 +47,7 @@ pub fn add(opcode: u8, clu: &mut CLU) -> Result<(), String> {
             .memory
             .read(read_u16(&clu.registers.l, &clu.registers.h))?;
     } else {
-        src = *clu.registers.match_register(src)?;
+        src = *clu.registers.match_r8(src)?;
     }
     let addend = if read_bits(opcode, 3, 1) == 1 && clu.registers.read_flag(Flag::Carry) {
         src + 1
@@ -77,7 +77,7 @@ pub fn sub(opcode: u8, clu: &mut CLU) -> Result<(), String> {
             .memory
             .read(read_u16(&clu.registers.l, &clu.registers.h))?;
     } else {
-        src = *clu.registers.match_register(src)?;
+        src = *clu.registers.match_r8(src)?;
     }
     let subtrahend = if read_bits(opcode, 3, 1) == 1 && clu.registers.read_flag(Flag::Carry) {
         src + 1

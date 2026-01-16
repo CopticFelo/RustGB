@@ -30,7 +30,7 @@ impl R8 {
         } else {
             Ok(Self::Register {
                 reg: param,
-                value: *clu.registers.match_register(param)?,
+                value: *clu.registers.match_r8(param)?,
             })
         }
     }
@@ -77,7 +77,7 @@ impl CLU {
             // you don't need to call clock.tick again when writing as this part doesn't even
             // need a cycle for reading but only one for writing, so writing here is free
             R8::Hl { addr, value: _ } => self.memory.write(addr, src)?,
-            R8::Register { reg, value: _ } => *self.registers.match_register(reg)? = src,
+            R8::Register { reg, value: _ } => *self.registers.match_r8(reg)? = src,
             R8::N8(n) => return Err(format!("invalid dst in ld instruction {}", n)),
         };
         Ok(())

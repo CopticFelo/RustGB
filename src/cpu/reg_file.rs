@@ -67,7 +67,7 @@ impl RegFile {
         }
     }
 
-    pub fn match_register(&mut self, num: u8) -> Result<&mut u8, &str> {
+    pub fn match_r8(&mut self, num: u8) -> Result<&mut u8, &str> {
         match num {
             0x0 => Ok(&mut self.b),
             0x1 => Ok(&mut self.c),
@@ -77,6 +77,17 @@ impl RegFile {
             0x5 => Ok(&mut self.l),
             0x7 => Ok(&mut self.a),
             _ => Err("Invalid r8 index"),
+        }
+    }
+
+    /// Note to caller: need to handle 0x3 yourself
+    pub fn match_r16(&mut self, num: u8) -> Result<(&mut u8, &mut u8), &str> {
+        match num {
+            0x0 => Ok((&mut self.c, &mut self.b)),
+            0x1 => Ok((&mut self.e, &mut self.d)),
+            0x2 => Ok((&mut self.l, &mut self.h)),
+            // The 16 bit register sp is in a single variable so not covered by this function that
+            _ => Err("Invalid r16 index"),
         }
     }
 
