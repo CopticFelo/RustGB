@@ -150,3 +150,41 @@ pub fn cp(opcode: u8, clu: &mut CLU) -> Result<(), String> {
         .set_all_flags(&[zero as u8, 1, half_carry as u8, carry as u8])?;
     Ok(())
 }
+
+/// inc r8 | inc hl | dec r8 | dec hl
+pub fn inc_r8(opcode: u8, clu: &mut CLU, delta: i8) -> Result<(), String> {
+    let r8_param = R8::get_r8_param(false, opcode, 3, clu)?;
+    match r8_param {
+        Register { reg: _, value } | Hl { addr: _, value } => {
+            let (half_carry, zero, sub, res): (bool, bool, bool, u8);
+            if delta < 0 {
+                res = value.wrapping_sub(delta.unsigned_abs());
+                half_carry = (value & 0xF) < (delta.unsigned_abs() & 0xF);
+                sub = true
+            } else {
+                res = value.wrapping_add(delta as u8);
+                half_carry = (value & 0xF) + (delta as u8 & 0xF) > 0xF;
+                sub = false
+            }
+            zero = res == 0;
+            // println!("delta: {}", delta.unsigned_abs());
+            // println!("{}", res);
+            println!("{}", half_carry);
+            if let Hl { addr, value: _ } = r8_param {
+                clu.clock.tick();
+                clu.clock.tick();
+                clu.memory.write(addr, res)?;
+            } else if let Register { reg, value: _ } = r8_param {
+                *clu.registers.match_r8(reg)? = res;
+            }
+            clu.registers.set_all_flags(&[
+                zero as u8,
+                sub as u8,
+                half_carry as u8,
+                clu.registers.read_flag(Flag::Carry) as u8,
+            ])?;
+        }
+        _ => (),
+    }
+    Ok(())
+}

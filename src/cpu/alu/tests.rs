@@ -122,3 +122,30 @@ fn sbc_a_hl() -> Result<(), String> {
     assert!(clu.registers.read_flag(Flag::Subtract));
     Ok(())
 }
+
+#[test]
+fn inc_b() -> Result<(), String> {
+    let mut clu = get_clu(vec![0x04, 0xDD]);
+    clu.registers.b = 255;
+    let _ = clu.start_exec_cycle();
+    assert_eq!(clu.registers.b, 0);
+    assert_eq!(clu.clock.m_cycles, 2);
+    assert!(clu.registers.read_flag(Flag::HalfCarry));
+    assert!(clu.registers.read_flag(Flag::Zero));
+    assert!(!clu.registers.read_flag(Flag::Subtract));
+    Ok(())
+}
+
+#[test]
+fn dec_hl() -> Result<(), String> {
+    let mut clu = get_clu(vec![0x35, 0xDD]);
+    alu::write_u16(&mut clu.registers.l, &mut clu.registers.h, 0xC001);
+    let _ = clu.memory.write(0xC001, 0);
+    let _ = clu.start_exec_cycle();
+    assert_eq!(clu.memory.read(0xC001)?, 255);
+    assert_eq!(clu.clock.m_cycles, 5);
+    assert!(clu.registers.read_flag(Flag::HalfCarry));
+    assert!(!clu.registers.read_flag(Flag::Zero));
+    assert!(clu.registers.read_flag(Flag::Subtract));
+    Ok(())
+}
