@@ -66,9 +66,18 @@ impl CLU {
     }
 
     fn load_from(&mut self, opcode: u8) -> Result<(), String> {
+        print!("ld ");
         let src_param = R8::get_r8_param(false, opcode, 0, self)?;
+        let src_str;
         let src = match src_param {
-            R8::Register { reg: _, value } | R8::Hl { addr: _, value } => value,
+            R8::Register { reg: _, value } => {
+                src_str = "r8";
+                value
+            }
+            R8::Hl { addr: _, value } => {
+                src_str = "[hl]";
+                value
+            }
             _ => return Err("invalid src in ld instruction: n8".to_string()),
         };
         let dst_param = R8::get_r8_param(false, opcode, 3, self)?;
@@ -76,10 +85,18 @@ impl CLU {
             // IMPORTANT: because get_r8_param() alr calls clock.tick() when reading the value,
             // you don't need to call clock.tick again when writing as this part doesn't even
             // need a cycle for reading but only one for writing, so writing here is free
-            R8::Hl { addr, value: _ } => self.memory.write(addr, src)?,
-            R8::Register { reg, value: _ } => *self.registers.match_r8(reg)? = src,
+            // TODO: Fix this mess
+            R8::Hl { addr, value: _ } => {
+                print!("[hl] ");
+                self.memory.write(addr, src)?
+            }
+            R8::Register { reg, value: _ } => {
+                print!("r8 ");
+                *self.registers.match_r8(reg)? = src;
+            }
             R8::N8(n) => return Err(format!("invalid dst in ld instruction {}", n)),
         };
+        println!("{}", src_str);
         Ok(())
     }
 
@@ -87,12 +104,18 @@ impl CLU {
         let target_address: u16;
         let is_conditional: bool;
         if is_relative {
+            print!("jr ");
             is_conditional = opcode != 0x18;
             target_address = (self.registers.pc as i16 + self.fetch() as i16) as u16;
         } else {
+            print!("jp ");
             is_conditional = opcode != 0xC3;
             target_address = alu::read_u16(&self.fetch(), &self.fetch());
         }
+        if is_conditional {
+            print!("cc ");
+        }
+        println!("n16");
         if self
             .registers
             .match_condition(alu::read_bits(opcode, 3, 2))?
@@ -107,13 +130,16 @@ impl CLU {
     pub fn start_exec_cycle(&mut self) -> Result<(), String> {
         loop {
             let opcode = self.fetch();
-            println!("{:#X}", opcode);
-            println!("{:#X}", self.registers.pc);
+            print!("{:#X}: ", self.registers.pc);
+            print!("{:#X} -> ", opcode);
             match opcode {
-                0x0 => (),                                                                       // NOP
+                0x0 => println!("nop"),                                       // NOP
                 0xC2 | 0xD2 | 0xCA | 0xDA | 0xC3 => self.jmp(opcode, false)?, // JP cc, imm16 | JP imm16
                 0x20 | 0x30 | 0x28 | 0x38 | 0x18 => self.jmp(opcode, true)?, // JR cc, imm8 | JR imm8
-                0xE9 => self.registers.pc = alu::read_u16(&self.registers.l, &self.registers.h), // JP hl
+                0xE9 => {
+                    println!("jp [hl]");
+                    self.registers.pc = alu::read_u16(&self.registers.l, &self.registers.h);
+                } // JP hl
                 0x40..0x80 => self.load_from(opcode)?, // LD r8, r8 | LD r8, [hl] | LD [hl], r8
                 0x80..0x90 | 0xC6 | 0xCE => alu::add(opcode, self)?, // ADD/ADC A, r8 | ADD/ADC A, [hl] | ADD/ADC A, imm8
                 0x90..0xA0 | 0xD6 | 0xDE => alu::sub(opcode, self)?, // SUB/SBC A, r8 | SUB/SBC A, [hl] | SUB/SBC A, imm8
@@ -130,7 +156,7 @@ impl CLU {
                 0xD3 | 0xDB | 0xDD | 0xE3 | 0xE4 | 0xEB..0xEE | 0xF4 | 0xFC | 0xFD => {
                     return Err(format!("Illegal operation {opcode}"));
                 }
-                _ => eprintln!("Unimplemented"),
+                _ => println!("<unsupported>"),
             }
         }
     }
