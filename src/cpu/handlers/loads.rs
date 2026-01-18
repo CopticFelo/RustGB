@@ -1,6 +1,6 @@
-use crate::cpu::clu::clu::{CLU, R8};
+use crate::cpu::cpu_context::{CpuContext, R8};
 
-pub fn load_from(clu: &mut CLU, opcode: u8) -> Result<(), String> {
+pub fn load_from(clu: &mut CpuContext, opcode: u8) -> Result<(), String> {
     print!("ld ");
     let src_param = R8::get_r8_param(false, opcode, 0, clu)?;
     let src_str;

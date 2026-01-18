@@ -15,7 +15,12 @@ pub enum R8 {
 }
 
 impl R8 {
-    pub fn get_r8_param(n8: bool, opcode: u8, index: u8, clu: &mut CLU) -> Result<Self, String> {
+    pub fn get_r8_param(
+        n8: bool,
+        opcode: u8,
+        index: u8,
+        clu: &mut CpuContext,
+    ) -> Result<Self, String> {
         if n8 {
             return Ok(Self::N8(clu.fetch()));
         }
@@ -36,13 +41,13 @@ impl R8 {
     }
 }
 
-pub struct CLU {
+pub struct CpuContext {
     pub registers: RegFile,
     pub memory: MemoryMap,
     pub clock: Clock,
 }
 
-impl CLU {
+impl CpuContext {
     pub fn init(registers: RegFile, memory: MemoryMap, clock: Clock) -> Self {
         Self {
             registers,

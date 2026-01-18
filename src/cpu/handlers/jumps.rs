@@ -1,6 +1,6 @@
-use crate::cpu::{alu::alu, clu::clu::CLU};
+use crate::cpu::{alu::alu, cpu_context::CpuContext};
 
-pub fn jmp(clu: &mut CLU, opcode: u8, is_relative: bool) -> Result<(), String> {
+pub fn jmp(clu: &mut CpuContext, opcode: u8, is_relative: bool) -> Result<(), String> {
     let target_address: u16;
     let is_conditional: bool;
     if is_relative {

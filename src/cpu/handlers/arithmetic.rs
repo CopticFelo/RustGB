@@ -1,13 +1,13 @@
 use crate::cpu::{
     alu::alu::*,
-    clu::clu::{
-        CLU,
+    cpu_context::{
+        CpuContext,
         R8::{self, *},
     },
     reg_file::Flag,
 };
 
-pub fn add(opcode: u8, clu: &mut CLU) -> Result<(), String> {
+pub fn add(opcode: u8, clu: &mut CpuContext) -> Result<(), String> {
     let mut src = read_bits(opcode, 0, 3);
     let operand_str;
     if opcode == 0xC6 || opcode == 0xCE {
@@ -43,7 +43,7 @@ pub fn add(opcode: u8, clu: &mut CLU) -> Result<(), String> {
     Ok(())
 }
 
-pub fn sub(opcode: u8, clu: &mut CLU) -> Result<(), String> {
+pub fn sub(opcode: u8, clu: &mut CpuContext) -> Result<(), String> {
     // FIX: This Code block right here is repeated 3 times so far
     let mut src = read_bits(opcode, 0, 3);
     let operand_str;
@@ -81,7 +81,7 @@ pub fn sub(opcode: u8, clu: &mut CLU) -> Result<(), String> {
 }
 
 //NOTE: Untested
-pub fn and(opcode: u8, clu: &mut CLU) -> Result<(), String> {
+pub fn and(opcode: u8, clu: &mut CpuContext) -> Result<(), String> {
     print!("and ");
     let r8_param = R8::get_r8_param(opcode == 0xE6, opcode, 0, clu)?;
     let src = match r8_param {
@@ -105,7 +105,7 @@ pub fn and(opcode: u8, clu: &mut CLU) -> Result<(), String> {
 }
 
 //NOTE: Untested
-pub fn xor(opcode: u8, clu: &mut CLU) -> Result<(), String> {
+pub fn xor(opcode: u8, clu: &mut CpuContext) -> Result<(), String> {
     print!("xor ");
     let r8_param = R8::get_r8_param(opcode == 0xEE, opcode, 0, clu)?;
     let src = match r8_param {
@@ -129,7 +129,7 @@ pub fn xor(opcode: u8, clu: &mut CLU) -> Result<(), String> {
 }
 
 //NOTE: Untested
-pub fn or(opcode: u8, clu: &mut CLU) -> Result<(), String> {
+pub fn or(opcode: u8, clu: &mut CpuContext) -> Result<(), String> {
     print!("or ");
     let r8_param = R8::get_r8_param(opcode == 0xF6, opcode, 0, clu)?;
     let src = match r8_param {
@@ -153,7 +153,7 @@ pub fn or(opcode: u8, clu: &mut CLU) -> Result<(), String> {
 }
 
 //NOTE: Untested
-pub fn cp(opcode: u8, clu: &mut CLU) -> Result<(), String> {
+pub fn cp(opcode: u8, clu: &mut CpuContext) -> Result<(), String> {
     //NOTE: This code is also valid for sub, probably need to do that as well there
     print!("cp ");
     let r8_param = R8::get_r8_param(opcode == 0xFE, opcode, 0, clu)?;
@@ -180,7 +180,7 @@ pub fn cp(opcode: u8, clu: &mut CLU) -> Result<(), String> {
 }
 
 /// inc r8 | inc hl | dec r8 | dec hl
-pub fn inc_r8(opcode: u8, clu: &mut CLU, delta: i8) -> Result<(), String> {
+pub fn inc_r8(opcode: u8, clu: &mut CpuContext, delta: i8) -> Result<(), String> {
     let r8_param = R8::get_r8_param(false, opcode, 3, clu)?;
     match r8_param {
         Register { reg: _, value } | Hl { addr: _, value } => {
