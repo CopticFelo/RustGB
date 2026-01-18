@@ -19,23 +19,23 @@ impl R8 {
         n8: bool,
         opcode: u8,
         index: u8,
-        clu: &mut CpuContext,
+        context: &mut CpuContext,
     ) -> Result<Self, String> {
         if n8 {
-            return Ok(Self::N8(clu.fetch()));
+            return Ok(Self::N8(context.fetch()));
         }
         let param = alu::read_bits(opcode, index, 3);
         if param == 6 {
-            let addr = alu::read_u16(&clu.registers.l, &clu.registers.h);
-            clu.clock.tick();
+            let addr = alu::read_u16(&context.registers.l, &context.registers.h);
+            context.clock.tick();
             Ok(Self::Hl {
                 addr,
-                value: clu.memory.read(addr)?,
+                value: context.memory.read(addr)?,
             })
         } else {
             Ok(Self::Register {
                 reg: param,
-                value: *clu.registers.match_r8(param)?,
+                value: *context.registers.match_r8(param)?,
             })
         }
     }

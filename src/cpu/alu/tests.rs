@@ -2,150 +2,150 @@
 //     cpu::{
 //         alu::alu,
 //         clock::Clock,
-//         clu::clu::CpuContext,
+//         context::context::CpuContext,
 //         reg_file::{Flag, Modes, RegFile},
 //     },
 //     mem::map::MemoryMap,
 //     rom::rom_info::ROMInfo,
 // };
 //
-// fn get_clu(rom: Vec<u8>) -> CpuContext {
-//     let mut clu = CpuContext::init(
+// fn get_context(rom: Vec<u8>) -> CpuContext {
+//     let mut context = CpuContext::init(
 //         RegFile::new(Modes::CGBDMG),
 //         MemoryMap::init_rom(rom, ROMInfo::default()),
 //         Clock::default(),
 //     );
-//     clu.registers.pc = 0;
-//     clu
+//     context.registers.pc = 0;
+//     context
 // }
 //
 // #[test]
 // fn add_a_b() -> Result<(), String> {
-//     let mut clu = get_clu(vec![0x80, 0xDD]);
-//     clu.registers.a = 172;
-//     clu.registers.b = 108;
-//     let _ = clu.start_exec_cycle();
-//     assert_eq!(clu.registers.a, 24);
-//     assert_eq!(clu.clock.m_cycles, 2);
-//     assert!(clu.registers.read_flag(Flag::Carry));
-//     assert!(clu.registers.read_flag(Flag::HalfCarry));
-//     assert!(!clu.registers.read_flag(Flag::Zero));
-//     assert!(!clu.registers.read_flag(Flag::Subtract));
+//     let mut context = get_context(vec![0x80, 0xDD]);
+//     context.registers.a = 172;
+//     context.registers.b = 108;
+//     let _ = context.start_exec_cycle();
+//     assert_eq!(context.registers.a, 24);
+//     assert_eq!(context.clock.m_cycles, 2);
+//     assert!(context.registers.read_flag(Flag::Carry));
+//     assert!(context.registers.read_flag(Flag::HalfCarry));
+//     assert!(!context.registers.read_flag(Flag::Zero));
+//     assert!(!context.registers.read_flag(Flag::Subtract));
 //
-//     clu.registers.a = 0;
-//     clu.registers.b = 0;
-//     clu.registers.pc = 0;
-//     let _ = clu.start_exec_cycle();
-//     assert_eq!(clu.clock.m_cycles, 4);
-//     assert!(!clu.registers.read_flag(Flag::Carry));
-//     assert!(!clu.registers.read_flag(Flag::HalfCarry));
-//     assert!(clu.registers.read_flag(Flag::Zero));
-//     assert!(!clu.registers.read_flag(Flag::Subtract));
+//     context.registers.a = 0;
+//     context.registers.b = 0;
+//     context.registers.pc = 0;
+//     let _ = context.start_exec_cycle();
+//     assert_eq!(context.clock.m_cycles, 4);
+//     assert!(!context.registers.read_flag(Flag::Carry));
+//     assert!(!context.registers.read_flag(Flag::HalfCarry));
+//     assert!(context.registers.read_flag(Flag::Zero));
+//     assert!(!context.registers.read_flag(Flag::Subtract));
 //     Ok(())
 // }
 //
 // #[test]
 // fn adc_a_hl() -> Result<(), String> {
-//     let mut clu = get_clu(vec![0x8E, 0xDD]);
-//     clu.registers.a = 172;
-//     alu::write_u16(&mut clu.registers.l, &mut clu.registers.h, 0xC001);
-//     let _ = clu.memory.write(0xC001, 108);
-//     let _ = clu.registers.set_flag(Flag::Carry, Some(true));
-//     let _ = clu.start_exec_cycle();
-//     assert_eq!(clu.registers.a, 25);
-//     assert_eq!(clu.clock.m_cycles, 3);
-//     assert!(clu.registers.read_flag(Flag::Carry));
-//     assert!(clu.registers.read_flag(Flag::HalfCarry));
-//     assert!(!clu.registers.read_flag(Flag::Zero));
-//     assert!(!clu.registers.read_flag(Flag::Subtract));
+//     let mut context = get_context(vec![0x8E, 0xDD]);
+//     context.registers.a = 172;
+//     alu::write_u16(&mut context.registers.l, &mut context.registers.h, 0xC001);
+//     let _ = context.memory.write(0xC001, 108);
+//     let _ = context.registers.set_flag(Flag::Carry, Some(true));
+//     let _ = context.start_exec_cycle();
+//     assert_eq!(context.registers.a, 25);
+//     assert_eq!(context.clock.m_cycles, 3);
+//     assert!(context.registers.read_flag(Flag::Carry));
+//     assert!(context.registers.read_flag(Flag::HalfCarry));
+//     assert!(!context.registers.read_flag(Flag::Zero));
+//     assert!(!context.registers.read_flag(Flag::Subtract));
 //
-//     clu.registers.a = 255;
-//     let _ = clu.memory.write(0xC001, 0);
-//     clu.registers.pc = 0;
-//     let _ = clu.start_exec_cycle();
-//     assert_eq!(clu.clock.m_cycles, 6);
-//     assert!(clu.registers.read_flag(Flag::Carry));
-//     assert!(clu.registers.read_flag(Flag::HalfCarry));
-//     assert!(clu.registers.read_flag(Flag::Zero));
-//     assert!(!clu.registers.read_flag(Flag::Subtract));
+//     context.registers.a = 255;
+//     let _ = context.memory.write(0xC001, 0);
+//     context.registers.pc = 0;
+//     let _ = context.start_exec_cycle();
+//     assert_eq!(context.clock.m_cycles, 6);
+//     assert!(context.registers.read_flag(Flag::Carry));
+//     assert!(context.registers.read_flag(Flag::HalfCarry));
+//     assert!(context.registers.read_flag(Flag::Zero));
+//     assert!(!context.registers.read_flag(Flag::Subtract));
 //     Ok(())
 // }
 //
 // #[test]
 // fn sub_a_c() -> Result<(), String> {
-//     let mut clu = get_clu(vec![0x91, 0xDD]);
-//     clu.registers.a = 64;
-//     clu.registers.c = 108;
-//     let _ = clu.start_exec_cycle();
-//     assert_eq!(clu.registers.a, 212);
-//     assert_eq!(clu.clock.m_cycles, 2);
-//     assert!(clu.registers.read_flag(Flag::Carry));
-//     assert!(clu.registers.read_flag(Flag::HalfCarry));
-//     assert!(!clu.registers.read_flag(Flag::Zero));
-//     assert!(clu.registers.read_flag(Flag::Subtract));
+//     let mut context = get_context(vec![0x91, 0xDD]);
+//     context.registers.a = 64;
+//     context.registers.c = 108;
+//     let _ = context.start_exec_cycle();
+//     assert_eq!(context.registers.a, 212);
+//     assert_eq!(context.clock.m_cycles, 2);
+//     assert!(context.registers.read_flag(Flag::Carry));
+//     assert!(context.registers.read_flag(Flag::HalfCarry));
+//     assert!(!context.registers.read_flag(Flag::Zero));
+//     assert!(context.registers.read_flag(Flag::Subtract));
 //
-//     clu.registers.a = 0;
-//     clu.registers.c = 0;
-//     clu.registers.pc = 0;
-//     let _ = clu.start_exec_cycle();
-//     assert_eq!(clu.clock.m_cycles, 4);
-//     assert!(!clu.registers.read_flag(Flag::Carry));
-//     assert!(!clu.registers.read_flag(Flag::HalfCarry));
-//     assert!(clu.registers.read_flag(Flag::Zero));
-//     assert!(clu.registers.read_flag(Flag::Subtract));
+//     context.registers.a = 0;
+//     context.registers.c = 0;
+//     context.registers.pc = 0;
+//     let _ = context.start_exec_cycle();
+//     assert_eq!(context.clock.m_cycles, 4);
+//     assert!(!context.registers.read_flag(Flag::Carry));
+//     assert!(!context.registers.read_flag(Flag::HalfCarry));
+//     assert!(context.registers.read_flag(Flag::Zero));
+//     assert!(context.registers.read_flag(Flag::Subtract));
 //     Ok(())
 // }
 //
 // #[test]
 // fn sbc_a_hl() -> Result<(), String> {
-//     let mut clu = get_clu(vec![0x9E, 0xDD]);
-//     clu.registers.a = 64;
-//     alu::write_u16(&mut clu.registers.l, &mut clu.registers.h, 0xC001);
-//     let _ = clu.memory.write(0xC001, 108);
-//     let _ = clu.registers.set_flag(Flag::Carry, Some(true));
-//     let _ = clu.start_exec_cycle();
-//     assert_eq!(clu.registers.a, 211);
-//     assert_eq!(clu.clock.m_cycles, 3);
-//     assert!(clu.registers.read_flag(Flag::Carry));
-//     assert!(clu.registers.read_flag(Flag::HalfCarry));
-//     assert!(!clu.registers.read_flag(Flag::Zero));
-//     assert!(clu.registers.read_flag(Flag::Subtract));
+//     let mut context = get_context(vec![0x9E, 0xDD]);
+//     context.registers.a = 64;
+//     alu::write_u16(&mut context.registers.l, &mut context.registers.h, 0xC001);
+//     let _ = context.memory.write(0xC001, 108);
+//     let _ = context.registers.set_flag(Flag::Carry, Some(true));
+//     let _ = context.start_exec_cycle();
+//     assert_eq!(context.registers.a, 211);
+//     assert_eq!(context.clock.m_cycles, 3);
+//     assert!(context.registers.read_flag(Flag::Carry));
+//     assert!(context.registers.read_flag(Flag::HalfCarry));
+//     assert!(!context.registers.read_flag(Flag::Zero));
+//     assert!(context.registers.read_flag(Flag::Subtract));
 //
-//     clu.registers.a = 1;
-//     let _ = clu.memory.write(0xC001, 0);
-//     clu.registers.pc = 0;
-//     let _ = clu.start_exec_cycle();
-//     assert_eq!(clu.clock.m_cycles, 6);
-//     assert!(!clu.registers.read_flag(Flag::Carry));
-//     assert!(!clu.registers.read_flag(Flag::HalfCarry));
-//     assert!(clu.registers.read_flag(Flag::Zero));
-//     assert!(clu.registers.read_flag(Flag::Subtract));
+//     context.registers.a = 1;
+//     let _ = context.memory.write(0xC001, 0);
+//     context.registers.pc = 0;
+//     let _ = context.start_exec_cycle();
+//     assert_eq!(context.clock.m_cycles, 6);
+//     assert!(!context.registers.read_flag(Flag::Carry));
+//     assert!(!context.registers.read_flag(Flag::HalfCarry));
+//     assert!(context.registers.read_flag(Flag::Zero));
+//     assert!(context.registers.read_flag(Flag::Subtract));
 //     Ok(())
 // }
 //
 // #[test]
 // fn inc_b() -> Result<(), String> {
-//     let mut clu = get_clu(vec![0x04, 0xDD]);
-//     clu.registers.b = 255;
-//     let _ = clu.start_exec_cycle();
-//     assert_eq!(clu.registers.b, 0);
-//     assert_eq!(clu.clock.m_cycles, 2);
-//     assert!(clu.registers.read_flag(Flag::HalfCarry));
-//     assert!(clu.registers.read_flag(Flag::Zero));
-//     assert!(!clu.registers.read_flag(Flag::Subtract));
+//     let mut context = get_context(vec![0x04, 0xDD]);
+//     context.registers.b = 255;
+//     let _ = context.start_exec_cycle();
+//     assert_eq!(context.registers.b, 0);
+//     assert_eq!(context.clock.m_cycles, 2);
+//     assert!(context.registers.read_flag(Flag::HalfCarry));
+//     assert!(context.registers.read_flag(Flag::Zero));
+//     assert!(!context.registers.read_flag(Flag::Subtract));
 //     Ok(())
 // }
 //
 // #[test]
 // fn dec_hl() -> Result<(), String> {
-//     let mut clu = get_clu(vec![0x35, 0xDD]);
-//     alu::write_u16(&mut clu.registers.l, &mut clu.registers.h, 0xC001);
-//     let _ = clu.memory.write(0xC001, 0);
-//     let _ = clu.start_exec_cycle();
-//     assert_eq!(clu.memory.read(0xC001)?, 255);
-//     assert_eq!(clu.clock.m_cycles, 5);
-//     assert!(clu.registers.read_flag(Flag::HalfCarry));
-//     assert!(!clu.registers.read_flag(Flag::Zero));
-//     assert!(clu.registers.read_flag(Flag::Subtract));
+//     let mut context = get_context(vec![0x35, 0xDD]);
+//     alu::write_u16(&mut context.registers.l, &mut context.registers.h, 0xC001);
+//     let _ = context.memory.write(0xC001, 0);
+//     let _ = context.start_exec_cycle();
+//     assert_eq!(context.memory.read(0xC001)?, 255);
+//     assert_eq!(context.clock.m_cycles, 5);
+//     assert!(context.registers.read_flag(Flag::HalfCarry));
+//     assert!(!context.registers.read_flag(Flag::Zero));
+//     assert!(context.registers.read_flag(Flag::Subtract));
 //     Ok(())
 // }
