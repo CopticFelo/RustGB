@@ -30,12 +30,14 @@ pub fn add(opcode: u8, context: &mut CpuContext) -> Result<(), String> {
         print!("add ");
         src
     };
-    println!("{}", operand_str);
+    print!("{}", operand_str);
     let half_carry = (context.registers.a & 0xF) + (addend & 0xF) > 0xF;
     let (res, carry) = context.registers.a.overflowing_add(addend);
     let zero = res == 0;
     //FIX: Use set_all_flags()
-    context.registers.set_flag(Flag::HalfCarry, Some(half_carry))?;
+    context
+        .registers
+        .set_flag(Flag::HalfCarry, Some(half_carry))?;
     context.registers.set_flag(Flag::Carry, Some(carry))?;
     context.registers.set_flag(Flag::Zero, Some(zero))?;
     context.registers.set_flag(Flag::Subtract, Some(false))?;
@@ -67,12 +69,14 @@ pub fn sub(opcode: u8, context: &mut CpuContext) -> Result<(), String> {
         print!("sub ");
         src
     };
-    println!("{}", operand_str);
+    print!("{}", operand_str);
     let half_carry = (context.registers.a & 0xF) < (subtrahend & 0xF);
     let (res, carry) = context.registers.a.overflowing_sub(subtrahend);
     let zero = res == 0;
     //FIX: Use set_all_flags()
-    context.registers.set_flag(Flag::HalfCarry, Some(half_carry))?;
+    context
+        .registers
+        .set_flag(Flag::HalfCarry, Some(half_carry))?;
     context.registers.set_flag(Flag::Carry, Some(carry))?;
     context.registers.set_flag(Flag::Zero, Some(zero))?;
     context.registers.set_flag(Flag::Subtract, Some(true))?;
@@ -84,22 +88,11 @@ pub fn sub(opcode: u8, context: &mut CpuContext) -> Result<(), String> {
 pub fn and(opcode: u8, context: &mut CpuContext) -> Result<(), String> {
     print!("and ");
     let r8_param = R8::get_r8_param(opcode == 0xE6, opcode, 0, context)?;
-    let src = match r8_param {
-        Register { reg: _, value } => {
-            println!("r8");
-            value
-        }
-        R8::Hl { addr: _, value } => {
-            println!("[hl]");
-            value
-        }
-        N8(n) => {
-            println!("imm8");
-            n
-        }
-    };
+    let src = r8_param.read(context)?;
+    r8_param.log();
     context.registers.a &= src;
-    context.registers
+    context
+        .registers
         .set_all_flags(&[(context.registers.a == 0) as u8, 0, 1, 0])?;
     Ok(())
 }
@@ -108,22 +101,11 @@ pub fn and(opcode: u8, context: &mut CpuContext) -> Result<(), String> {
 pub fn xor(opcode: u8, context: &mut CpuContext) -> Result<(), String> {
     print!("xor ");
     let r8_param = R8::get_r8_param(opcode == 0xEE, opcode, 0, context)?;
-    let src = match r8_param {
-        Register { reg: _, value } => {
-            println!("r8");
-            value
-        }
-        R8::Hl { addr: _, value } => {
-            println!("[hl]");
-            value
-        }
-        N8(n) => {
-            println!("imm8");
-            n
-        }
-    };
+    r8_param.log();
+    let src = r8_param.read(context)?;
     context.registers.a ^= src;
-    context.registers
+    context
+        .registers
         .set_all_flags(&[(context.registers.a == 0) as u8, 0, 0, 0])?;
     Ok(())
 }
@@ -132,22 +114,11 @@ pub fn xor(opcode: u8, context: &mut CpuContext) -> Result<(), String> {
 pub fn or(opcode: u8, context: &mut CpuContext) -> Result<(), String> {
     print!("or ");
     let r8_param = R8::get_r8_param(opcode == 0xF6, opcode, 0, context)?;
-    let src = match r8_param {
-        Register { reg: _, value } => {
-            println!("r8");
-            value
-        }
-        R8::Hl { addr: _, value } => {
-            println!("[hl]");
-            value
-        }
-        N8(n) => {
-            println!("imm8");
-            n
-        }
-    };
+    let src = r8_param.read(context)?;
+    r8_param.log();
     context.registers.a |= src;
-    context.registers
+    context
+        .registers
         .set_all_flags(&[(context.registers.a == 0) as u8, 0, 0, 0])?;
     Ok(())
 }
@@ -157,24 +128,13 @@ pub fn cp(opcode: u8, context: &mut CpuContext) -> Result<(), String> {
     //NOTE: This code is also valid for sub, probably need to do that as well there
     print!("cp ");
     let r8_param = R8::get_r8_param(opcode == 0xFE, opcode, 0, context)?;
-    let subtrahend = match r8_param {
-        Register { reg: _, value } => {
-            println!("r8");
-            value
-        }
-        R8::Hl { addr: _, value } => {
-            println!("[hl]");
-            value
-        }
-        N8(n) => {
-            println!("imm8");
-            n
-        }
-    };
+    let subtrahend = r8_param.read(context)?;
+    r8_param.log();
     let half_carry = (context.registers.a & 0xF) < (subtrahend & 0xF);
     let (res, carry) = context.registers.a.overflowing_sub(subtrahend);
     let zero = res == 0;
-    context.registers
+    context
+        .registers
         .set_all_flags(&[zero as u8, 1, half_carry as u8, carry as u8])?;
     Ok(())
 }
@@ -182,37 +142,27 @@ pub fn cp(opcode: u8, context: &mut CpuContext) -> Result<(), String> {
 /// inc r8 | inc hl | dec r8 | dec hl
 pub fn inc_r8(opcode: u8, context: &mut CpuContext, delta: i8) -> Result<(), String> {
     let r8_param = R8::get_r8_param(false, opcode, 3, context)?;
-    match r8_param {
-        Register { reg: _, value } | Hl { addr: _, value } => {
-            let (half_carry, zero, sub, res): (bool, bool, bool, u8);
-            if delta < 0 {
-                print!("dec ");
-                res = value.wrapping_sub(delta.unsigned_abs());
-                half_carry = (value & 0xF) < (delta.unsigned_abs() & 0xF);
-                sub = true
-            } else {
-                print!("inc ");
-                res = value.wrapping_add(delta as u8);
-                half_carry = (value & 0xF) + (delta as u8 & 0xF) > 0xF;
-                sub = false
-            }
-            zero = res == 0;
-            if let Hl { addr, value: _ } = r8_param {
-                context.clock.tick();
-                context.memory.write(addr, res)?;
-                println!("[hl]");
-            } else if let Register { reg, value: _ } = r8_param {
-                *context.registers.match_r8(reg)? = res;
-                println!("r8");
-            }
-            context.registers.set_all_flags(&[
-                zero as u8,
-                sub as u8,
-                half_carry as u8,
-                context.registers.read_flag(Flag::Carry) as u8,
-            ])?;
-        }
-        _ => (),
+    let value = r8_param.read(context)?;
+    let (half_carry, zero, sub, res): (bool, bool, bool, u8);
+    if delta < 0 {
+        print!("dec ");
+        res = value.wrapping_sub(delta.unsigned_abs());
+        half_carry = (value & 0xF) < (delta.unsigned_abs() & 0xF);
+        sub = true
+    } else {
+        print!("inc ");
+        res = value.wrapping_add(delta as u8);
+        half_carry = (value & 0xF) + (delta as u8 & 0xF) > 0xF;
+        sub = false
     }
+    r8_param.log();
+    zero = res == 0;
+    r8_param.write(context, res)?;
+    context.registers.set_all_flags(&[
+        zero as u8,
+        sub as u8,
+        half_carry as u8,
+        context.registers.read_flag(Flag::Carry) as u8,
+    ])?;
     Ok(())
 }

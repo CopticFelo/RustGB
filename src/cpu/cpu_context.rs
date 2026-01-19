@@ -8,8 +8,8 @@ use crate::{
 // or the memory value (8-bit) pointed to by the 16-bit hl register
 // from 0-7 in order (b,c,d,e,h,l,[hl],a)
 pub enum R8 {
-    Register { reg: u8, value: u8 },
-    Hl { addr: u16, value: u8 },
+    Register(u8),
+    Hl(u16),
     N8(u8), // this is added for convinience some instructions that take r8 have an identical
             // version that takes imm8 (i.e the next byte on the rom)
 }
@@ -27,16 +27,40 @@ impl R8 {
         let param = alu::read_bits(opcode, index, 3);
         if param == 6 {
             let addr = alu::read_u16(&context.registers.l, &context.registers.h);
-            context.clock.tick();
-            Ok(Self::Hl {
-                addr,
-                value: context.memory.read(addr)?,
-            })
+            Ok(Self::Hl(addr))
         } else {
-            Ok(Self::Register {
-                reg: param,
-                value: *context.registers.match_r8(param)?,
-            })
+            Ok(Self::Register(param))
+        }
+    }
+    pub fn read(&self, context: &mut CpuContext) -> Result<u8, String> {
+        match self {
+            Self::Register(reg) => Ok(*context.registers.match_r8(*reg)?),
+            Self::Hl(addr) => Ok(context.memory.read(*addr)?),
+            Self::N8(n) => Ok(*n),
+        }
+    }
+    // TODO: implement write()
+    pub fn write(&self, context: &mut CpuContext, value: u8) -> Result<(), String> {
+        match self {
+            Self::Register(reg) => {
+                *context.registers.match_r8(*reg)? = value;
+                Ok(())
+            }
+            Self::Hl(addr) => {
+                context.clock.tick(); //NOTE: Remove this when refactoring memeory ops
+                context.memory.write(*addr, value)?;
+                Ok(())
+            }
+            Self::N8(_) => Ok(()),
+        }
+    }
+
+    //TODO: implement a better logging system
+    pub fn log(&self) {
+        match self {
+            Self::Register(_) => print!("r8"),
+            Self::Hl(_) => print!("[hl]"),
+            Self::N8(_) => print!("imm8"),
         }
     }
 }
@@ -76,7 +100,7 @@ impl CpuContext {
             print!("{:#X}: ", self.registers.pc);
             print!("{:#X} -> ", opcode);
             match opcode {
-                0x0 => println!("nop"),                                               // NOP
+                0x0 => print!("nop"),                                                 // NOP
                 0xC2 | 0xD2 | 0xCA | 0xDA | 0xC3 => jumps::jmp(self, opcode, false)?, // JP cc, imm16 | JP imm16
                 0x20 | 0x30 | 0x28 | 0x38 | 0x18 => jumps::jmp(self, opcode, true)?, // JR cc, imm8 | JR imm8
                 0xE9 => {
@@ -99,8 +123,9 @@ impl CpuContext {
                 0xD3 | 0xDB | 0xDD | 0xE3 | 0xE4 | 0xEB..0xEE | 0xF4 | 0xFC | 0xFD => {
                     return Err(format!("Illegal operation {opcode}"));
                 }
-                _ => println!("<unsupported>"),
+                _ => print!("<unsupported>"),
             }
+            println!();
         }
     }
 }
