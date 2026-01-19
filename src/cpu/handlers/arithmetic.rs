@@ -199,7 +199,6 @@ pub fn inc_r8(opcode: u8, context: &mut CpuContext, delta: i8) -> Result<(), Str
             zero = res == 0;
             if let Hl { addr, value: _ } = r8_param {
                 context.clock.tick();
-                context.clock.tick();
                 context.memory.write(addr, res)?;
                 println!("[hl]");
             } else if let Register { reg, value: _ } = r8_param {
