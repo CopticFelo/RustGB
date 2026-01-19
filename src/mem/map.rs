@@ -1,4 +1,7 @@
-use crate::rom::rom_info::ROMInfo;
+use crate::{
+    cpu::{clock::Clock, cpu_context::CpuContext},
+    rom::rom_info::ROMInfo,
+};
 
 #[derive(Debug)]
 pub struct MemoryMap {
@@ -37,7 +40,8 @@ impl MemoryMap {
             ie: 0,
         }
     }
-    pub fn read(&self, addr: u16) -> Result<u8, String> {
+    pub fn read(&self, clock: &mut Clock, addr: u16) -> Result<u8, String> {
+        clock.tick();
         let addr = addr as usize;
         match addr {
             0x0000..=0x3FFF => self.rom_banks[0].get(addr),
@@ -58,7 +62,8 @@ impl MemoryMap {
         .copied()
         .ok_or(format!("Error: Out of bounds address {}", addr))
     }
-    pub fn write(&mut self, addr: u16, value: u8) -> Result<(), String> {
+    pub fn write(&mut self, clock: &mut Clock, addr: u16, value: u8) -> Result<(), String> {
+        clock.tick();
         let addr = addr as usize;
         let opt_mem_ptr: Option<&mut u8> = match addr {
             0x0000..=0x3FFF => {

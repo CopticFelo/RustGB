@@ -32,14 +32,15 @@ impl R8 {
             Ok(Self::Register(param))
         }
     }
+
     pub fn read(&self, context: &mut CpuContext) -> Result<u8, String> {
         match self {
             Self::Register(reg) => Ok(*context.registers.match_r8(*reg)?),
-            Self::Hl(addr) => Ok(context.memory.read(*addr)?),
+            Self::Hl(addr) => Ok(context.memory.read(&mut context.clock, *addr)?),
             Self::N8(n) => Ok(*n),
         }
     }
-    // TODO: implement write()
+
     pub fn write(&self, context: &mut CpuContext, value: u8) -> Result<(), String> {
         match self {
             Self::Register(reg) => {
@@ -47,8 +48,7 @@ impl R8 {
                 Ok(())
             }
             Self::Hl(addr) => {
-                context.clock.tick(); //NOTE: Remove this when refactoring memeory ops
-                context.memory.write(*addr, value)?;
+                context.memory.write(&mut context.clock, *addr, value)?;
                 Ok(())
             }
             Self::N8(_) => Ok(()),
@@ -81,7 +81,7 @@ impl CpuContext {
     }
 
     pub fn fetch(&mut self) -> u8 {
-        let result = match self.memory.read(self.registers.pc) {
+        let result = match self.memory.read(&mut self.clock, self.registers.pc) {
             Ok(op) => op,
             // HACK: Probably improper error handling
             Err(s) => {
@@ -90,7 +90,6 @@ impl CpuContext {
             }
         };
         self.registers.pc += 1;
-        self.clock.tick();
         result
     }
 

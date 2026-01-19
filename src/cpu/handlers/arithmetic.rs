@@ -14,10 +14,10 @@ pub fn add(opcode: u8, context: &mut CpuContext) -> Result<(), String> {
         src = context.fetch();
         operand_str = "imm8";
     } else if src == 6 {
-        context.clock.tick();
-        src = context
-            .memory
-            .read(read_u16(&context.registers.l, &context.registers.h))?;
+        src = context.memory.read(
+            &mut context.clock,
+            read_u16(&context.registers.l, &context.registers.h),
+        )?;
         operand_str = "[hl]";
     } else {
         src = *context.registers.match_r8(src)?;
@@ -53,10 +53,10 @@ pub fn sub(opcode: u8, context: &mut CpuContext) -> Result<(), String> {
         src = context.fetch();
         operand_str = "imm8";
     } else if src == 6 {
-        context.clock.tick();
-        src = context
-            .memory
-            .read(read_u16(&context.registers.l, &context.registers.h))?;
+        src = context.memory.read(
+            &mut context.clock,
+            read_u16(&context.registers.l, &context.registers.h),
+        )?;
         operand_str = "[hl]";
     } else {
         src = *context.registers.match_r8(src)?;
