@@ -40,6 +40,7 @@ impl MemoryMap {
             ie: 0,
         }
     }
+    /// +1 M-C (4 T-C)
     pub fn read(&self, clock: &mut Clock, addr: u16) -> Result<u8, String> {
         clock.tick();
         let addr = addr as usize;
@@ -62,6 +63,7 @@ impl MemoryMap {
         .copied()
         .ok_or(format!("Error: Out of bounds address {}", addr))
     }
+    /// +1 M-C (4 T-C)
     pub fn write(&mut self, clock: &mut Clock, addr: u16, value: u8) -> Result<(), String> {
         clock.tick();
         let addr = addr as usize;
