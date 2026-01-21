@@ -1,4 +1,4 @@
-use crate::cpu::alu::alu;
+use crate::cpu::alu;
 
 // TODO: Use Idiomatic rust names
 pub enum Modes {
