@@ -1,0 +1,69 @@
+use rust_gb::{
+    cpu::{
+        alu,
+        clock::Clock,
+        cpu_context::CpuContext,
+        reg_file::{Flag, Modes, RegFile},
+    },
+    mem::map::MemoryMap,
+    rom::rom_info::ROMInfo,
+};
+
+fn get_mock_context(rom: Vec<u8>) -> CpuContext {
+    let mut context = CpuContext::init(
+        RegFile::new(Modes::CGBDMG),
+        MemoryMap::init_rom(rom, ROMInfo::default()),
+        Clock::default(),
+    );
+    context.registers.pc = 0;
+    context
+}
+
+#[test]
+fn ld_b_l() -> Result<(), String> {
+    let mut context = get_mock_context(vec![0x45, 0xDD]);
+    let _ = context.start_exec_cycle();
+    assert_eq!(context.registers.l, context.registers.b);
+    assert_eq!(context.clock.m_cycles, 2);
+    Ok(())
+}
+
+#[test]
+fn ld_b_hl() -> Result<(), String> {
+    let mut context = get_mock_context(vec![0x46, 0xDD]);
+    let _ = context.memory.write(&mut context.clock, 0xC001, 0xB1);
+    alu::write_u16(&mut context.registers.l, &mut context.registers.h, 0xC001);
+    let _ = context.start_exec_cycle();
+    assert_eq!(
+        context
+            .memory
+            .read(
+                &mut context.clock,
+                alu::read_u16(&context.registers.l, &context.registers.h)
+            )
+            .unwrap(),
+        context.registers.b
+    );
+    assert_eq!(context.clock.m_cycles, 5);
+    Ok(())
+}
+
+#[test]
+fn ld_hl_a() -> Result<(), String> {
+    let mut context = get_mock_context(vec![0x77, 0xDD]);
+    context.registers.a = 0xB1;
+    alu::write_u16(&mut context.registers.l, &mut context.registers.h, 0xC001);
+    let _ = context.start_exec_cycle();
+    assert_eq!(
+        context
+            .memory
+            .read(
+                &mut context.clock,
+                alu::read_u16(&context.registers.l, &context.registers.h)
+            )
+            .unwrap(),
+        context.registers.a
+    );
+    assert_eq!(context.clock.m_cycles, 4);
+    Ok(())
+}

@@ -1,4 +1,4 @@
-use crate::cpu::{alu::alu, cpu_context::CpuContext};
+use crate::cpu::{alu, cpu_context::CpuContext};
 
 pub fn jmp(context: &mut CpuContext, opcode: u8, is_relative: bool) -> Result<(), String> {
     let target_address: u16;
