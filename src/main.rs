@@ -1,5 +1,5 @@
-use rust_gb::emulator;
-use rust_gb::rom::{rom_info, rom_parser};
+use redgb::emulator;
+use redgb::rom::{rom_info, rom_parser};
 use std::io::Write;
 use std::{env, fs, io};
 
