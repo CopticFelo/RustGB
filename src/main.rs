@@ -1,13 +1,7 @@
+use rust_gb::emulator;
+use rust_gb::rom::{rom_info, rom_parser};
 use std::io::Write;
 use std::{env, fs, io};
-
-mod rom;
-use rom::rom_info;
-use rom::rom_parser;
-
-mod cpu;
-mod emulator;
-mod mem;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
