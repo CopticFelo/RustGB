@@ -1,4 +1,4 @@
-use crate::cpu::cpu_context::{CpuContext, R8};
+use crate::cpu::{cpu_context::CpuContext, operands::R8};
 
 pub fn load_from(context: &mut CpuContext, opcode: u8) -> Result<(), String> {
     print!("ld ");

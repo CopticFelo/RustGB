@@ -1,11 +1,4 @@
-use crate::cpu::{
-    alu::*,
-    cpu_context::{
-        CpuContext,
-        R8::{self, *},
-    },
-    reg_file::Flag,
-};
+use crate::cpu::{alu::*, cpu_context::CpuContext, operands::R8, reg_file::Flag};
 
 pub fn add(opcode: u8, context: &mut CpuContext) -> Result<(), String> {
     let mut src = read_bits(opcode, 0, 3);
