@@ -67,3 +67,31 @@ fn ld_hl_a() -> Result<(), String> {
     assert_eq!(context.clock.m_cycles, 4);
     Ok(())
 }
+
+#[test]
+fn ld_hl_n8() -> Result<(), String> {
+    let mut context = get_mock_context(vec![0x36, 0x67, 0xDD]);
+    alu::write_u16(&mut context.registers.l, &mut context.registers.h, 0xC001);
+    let _ = context.start_exec_cycle();
+    assert_eq!(
+        context
+            .memory
+            .read(
+                &mut context.clock,
+                alu::read_u16(&context.registers.l, &context.registers.h)
+            )
+            .unwrap(),
+        0x67
+    );
+    assert_eq!(context.clock.m_cycles, 5);
+    Ok(())
+}
+
+#[test]
+fn ld_e_n8() -> Result<(), String> {
+    let mut context = get_mock_context(vec![0x1E, 0x67, 0xDD]);
+    let _ = context.start_exec_cycle();
+    assert_eq!(context.registers.e, 0x67);
+    assert_eq!(context.clock.m_cycles, 3);
+    Ok(())
+}
