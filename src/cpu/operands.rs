@@ -55,9 +55,9 @@ impl R8 {
     //TODO: implement a better logging system
     pub fn log(&self) {
         match self {
-            Self::Register(_) => print!("r8"),
-            Self::Hl(_) => print!("[hl]"),
-            Self::N8(_) => print!("imm8"),
+            Self::Register(_) => print!("r8 "),
+            Self::Hl(_) => print!("[hl] "),
+            Self::N8(_) => print!("imm8 "),
         }
     }
 }
