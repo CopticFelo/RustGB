@@ -1,4 +1,4 @@
-use rust_gb::{
+use redgb::{
     cpu::{
         clock::Clock,
         cpu_context::CpuContext,
