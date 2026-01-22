@@ -28,3 +28,8 @@ pub fn write_bits(target: &mut u8, index: u8, length: u8, bits: u8) -> Result<()
 
     Ok(())
 }
+
+#[test]
+fn read_bits_test() {
+    assert_eq!(read_bits(0x0E, 6, 1), 0);
+}
