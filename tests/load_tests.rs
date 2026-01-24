@@ -95,3 +95,24 @@ fn ld_e_n8() -> Result<(), String> {
     assert_eq!(context.clock.m_cycles, 3);
     Ok(())
 }
+
+#[test]
+fn ld_de_n16() -> Result<(), String> {
+    let mut context = get_mock_context(vec![0x11, 0x34, 0x12, 0xDD]);
+    let _ = context.start_exec_cycle();
+    assert_eq!(
+        alu::read_u16(&context.registers.e, &context.registers.d),
+        0x1234
+    );
+    assert_eq!(context.clock.m_cycles, 4);
+    Ok(())
+}
+
+#[test]
+fn ld_sp_n16() -> Result<(), String> {
+    let mut context = get_mock_context(vec![0x31, 0x34, 0x12, 0xDD]);
+    let _ = context.start_exec_cycle();
+    assert_eq!(context.registers.sp, 0x1234);
+    assert_eq!(context.clock.m_cycles, 4);
+    Ok(())
+}
