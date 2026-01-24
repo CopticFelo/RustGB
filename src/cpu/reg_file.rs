@@ -80,13 +80,13 @@ impl RegFile {
         }
     }
 
-    /// Note to caller: need to handle 0x3 yourself
+    /// Note: Assumes r16stk parameter, other parameter types need to be handled by caller
     pub fn match_r16(&mut self, num: u8) -> Result<(&mut u8, &mut u8), &str> {
         match num {
-            0x0 => Ok((&mut self.c, &mut self.b)),
-            0x1 => Ok((&mut self.e, &mut self.d)),
-            0x2 => Ok((&mut self.l, &mut self.h)),
-            // The 16 bit register sp is in a single variable so not covered by this function that
+            0x0 => Ok((&mut self.b, &mut self.c)),
+            0x1 => Ok((&mut self.d, &mut self.e)),
+            0x2 => Ok((&mut self.h, &mut self.l)),
+            0x3 => Ok((&mut self.a, &mut self.f)),
             _ => Err("Invalid r16 index"),
         }
     }
