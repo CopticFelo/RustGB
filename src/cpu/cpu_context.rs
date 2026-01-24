@@ -45,7 +45,7 @@ impl CpuContext {
                     self.registers.pc = alu::read_u16(&self.registers.l, &self.registers.h);
                 } // JP hl
                 0x06 | 0x16 | 0x26 | 0x36 | 0x0E | 0x1E | 0x2E | 0x3E | 0x40..0x80 => {
-                    loads::load_from(self, opcode)?
+                    loads::load8(self, opcode)?
                 } // LD r8, r8 | LD r8, [hl] | LD [hl], r8
                 0x80..0x90 | 0xC6 | 0xCE => arithmetic::add(opcode, self)?, // ADD/ADC A, r8 | ADD/ADC A, [hl] | ADD/ADC A, imm8
                 0x90..0xA0 | 0xD6 | 0xDE => arithmetic::sub(opcode, self)?, // SUB/SBC A, r8 | SUB/SBC A, [hl] | SUB/SBC A, imm8
