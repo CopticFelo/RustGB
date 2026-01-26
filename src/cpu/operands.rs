@@ -1,4 +1,4 @@
-use crate::cpu::{alu, cpu_context::CpuContext};
+use crate::cpu::{alu, cpu_context::CpuContext, reg_file::RegFile};
 
 // the r8 param is a 3 bit param in the instruction opcode
 // it represents an 8-bit register
@@ -58,6 +58,58 @@ impl R8 {
             Self::Register(_) => print!("r8 "),
             Self::Hl(_) => print!("[hl] "),
             Self::N8(_) => print!("imm8 "),
+        }
+    }
+}
+
+pub enum R16Type {
+    R16,
+    R16Stk,
+    R16Mem,
+}
+
+#[derive(Clone, Copy)]
+pub enum R16 {
+    BC,
+    DE,
+    HL,
+    AF,
+    SP,
+}
+
+impl R16 {
+    pub fn new(opcode: u8, index: u8, r16type: R16Type) -> Result<Self, String> {
+        let param = alu::read_bits(opcode, index, 2);
+        match param {
+            0x0 => Ok(Self::BC),
+            0x1 => Ok(Self::DE),
+            0x2 => Ok(Self::HL),
+            0x3 => match r16type {
+                R16Type::R16 => Ok(Self::SP),
+                R16Type::R16Stk => Ok(Self::AF),
+                R16Type::R16Mem => Ok(Self::HL),
+            },
+            _ => Err("Invalid paramter R16".to_owned()),
+        }
+    }
+
+    pub fn read(&self, reg_file: &RegFile) -> u16 {
+        match self {
+            R16::BC => alu::read_u16(&reg_file.c, &reg_file.b),
+            R16::DE => alu::read_u16(&reg_file.e, &reg_file.d),
+            R16::HL => alu::read_u16(&reg_file.l, &reg_file.h),
+            R16::AF => alu::read_u16(&reg_file.f, &reg_file.a),
+            R16::SP => reg_file.sp,
+        }
+    }
+
+    pub fn write(&self, value: u16, reg_file: &mut RegFile) {
+        match self {
+            R16::BC => alu::write_u16(&mut reg_file.c, &mut reg_file.b, value),
+            R16::DE => alu::write_u16(&mut reg_file.e, &mut reg_file.d, value),
+            R16::HL => alu::write_u16(&mut reg_file.l, &mut reg_file.h, value),
+            R16::AF => alu::write_u16(&mut reg_file.f, &mut reg_file.a, value),
+            R16::SP => reg_file.sp = value,
         }
     }
 }

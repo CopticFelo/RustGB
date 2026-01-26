@@ -1,4 +1,8 @@
-use crate::cpu::{alu, cpu_context::CpuContext, operands::R8};
+use crate::cpu::{
+    alu,
+    cpu_context::CpuContext,
+    operands::{R8, R16, R16Type},
+};
 
 pub fn load8(context: &mut CpuContext, opcode: u8) -> Result<(), String> {
     print!("ld ");
@@ -11,17 +15,12 @@ pub fn load8(context: &mut CpuContext, opcode: u8) -> Result<(), String> {
     Ok(())
 }
 
-pub fn load16(context: &mut CpuContext, opcode: u8) -> Result<(), &str> {
-    let param = alu::read_bits(opcode, 4, 2);
-    match param {
-        0..=0x2 => {
-            let value = alu::read_u16(&context.fetch(), &context.fetch());
-            let reg_tuple = context.registers.match_r16(param)?;
-            alu::write_u16(reg_tuple.1, reg_tuple.0, value);
-        }
-        0x3 => context.registers.sp = alu::read_u16(&context.fetch(), &context.fetch()),
-        _ => return Err("Invalid r16 param"),
-    }
+pub fn load16(context: &mut CpuContext, opcode: u8) -> Result<(), String> {
+    let param = R16::new(opcode, 4, R16Type::R16)?;
+    param.write(
+        alu::read_u16(&context.fetch(), &context.fetch()),
+        &mut context.registers,
+    );
     print!("ld r16 imm16");
     Ok(())
 }
