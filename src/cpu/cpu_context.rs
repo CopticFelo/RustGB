@@ -1,3 +1,5 @@
+use std::slice;
+
 use crate::{
     cpu::{alu, clock::Clock, handlers::*, reg_file::RegFile},
     mem::map::MemoryMap,
@@ -49,6 +51,7 @@ impl CpuContext {
                 } // LD r8, r8 | LD r8, [hl] | LD [hl], r8
                 0x01 | 0x11 | 0x21 | 0x31 => loads::load16(self, opcode)?, // LD r16, imm16
                 0x02 | 0x12 | 0x22 | 0x32 => loads::load_r16mem_a(opcode, self)?, // LD [r16mem] A
+                0x0A | 0x1A | 0x2A | 0x3A => loads::load_a_r16mem(opcode, self)?, // LD A, [r16mem]
                 0x80..0x90 | 0xC6 | 0xCE => arithmetic::add(opcode, self)?, // ADD/ADC A, r8 | ADD/ADC A, [hl] | ADD/ADC A, imm8
                 0x90..0xA0 | 0xD6 | 0xDE => arithmetic::sub(opcode, self)?, // SUB/SBC A, r8 | SUB/SBC A, [hl] | SUB/SBC A, imm8
                 0xA0..0xA8 | 0xE6 => arithmetic::and(opcode, self)?, // AND A, r8 | AND A, [hl] | AND A, imm8
