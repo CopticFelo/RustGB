@@ -55,3 +55,14 @@ pub fn load_a_r16mem(opcode: u8, context: &mut CpuContext) -> Result<(), String>
     print!("ld a [r16mem]");
     Ok(())
 }
+
+// NOTE: Untested
+pub fn ld_n16_sp(context: &mut CpuContext) -> Result<(), String> {
+    print!("ld [n16] sp");
+    let addr = alu::read_u16(&context.fetch(), &context.fetch());
+    let lsb = (context.registers.sp & 0xFF) as u8;
+    let msb = (context.registers.sp >> 8) as u8;
+    context.memory.write(&mut context.clock, addr, lsb)?;
+    context.memory.write(&mut context.clock, addr + 1, msb)?;
+    Ok(())
+}
