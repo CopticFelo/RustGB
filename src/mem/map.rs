@@ -113,7 +113,7 @@ impl Memory {
             }
             0xD000..=0xDFFF => {
                 let real_addr = src_addr - 0xD000;
-                Some(&bus.memory.wram[0][real_addr..=real_addr + 0x9F])
+                Some(&bus.memory.wram[bus.memory.active_wram][real_addr..=real_addr + 0x9F])
             }
             0xE000..=0xEFFF => {
                 let real_addr = src_addr - 0xE000;
