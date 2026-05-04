@@ -106,6 +106,7 @@ impl Memory {
         let slice = match src_addr {
             0x0000..=0x3FFF => bus.memory.controller.read_range(src_addr, 0x9F),
             0x4000..=0x7FFF => bus.memory.controller.read_range(src_addr, 0x9F),
+            0xA000..=0xBFFF => bus.memory.controller.read_range(src_addr, 0x9F),
             0xC000..=0xCFFF => {
                 let real_addr = src_addr - 0xC000;
                 Some(&bus.memory.wram[0][real_addr..=real_addr + 0x9F])
