@@ -28,7 +28,7 @@ Or (if you can run them) you can try the release builds (you would probably stil
 |Arrow keys|       D-Pad      |
 
 ## Game support
-Most Gameboy (DMG) games work but some games have game-breaking glitches still (Prehistorik man, Pokemon Silver, Super mario land 2)
+Most Gameboy (DMG) games work but some games have game-breaking glitches still (Prehistorik man, ~~Pokemon Silver~~, ~~Super mario land 2~~)
 Gameboy color (CGB) games are not supported at all
 
 ### What works
@@ -47,5 +47,5 @@ Tested games include:
 
 ### What doesn't
 All gameboy color games don't work because this is strictly a DMG-only emulator
-Some DMG games have game-breaking glitches (including but not limited to Prehistork man, Super Mario land 2, Mortal Kombat 3, Pokemon games)
+Some DMG games have game-breaking glitches (including but not limited to Prehistork man, ~~Super Mario land 2~~, Mortal Kombat 3, ~~Pokemon games~~)
 Be also warned that the audio quality isn't that great
