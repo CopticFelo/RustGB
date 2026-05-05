@@ -95,6 +95,13 @@ impl PPU {
     }
 
     pub fn tick(&mut self, mem: &mut Memory, t_cycles: &u64) {
+        if alu::read_bits(mem.io[LCDC], 7, 1) == 0 {
+            self.last_cycle = *t_cycles;
+            mem.io[LY] = 0;
+            self.mode = PPUMode::HBlank;
+            self.frame_flag = true;
+            return;
+        }
         let delta = t_cycles.abs_diff(self.last_cycle);
         if self.cycle_deficit > 0 {
             self.cycle_deficit -= 4;
@@ -234,9 +241,8 @@ impl PPU {
             }
             if self.discard_counter == 0 {
                 let framebuffer_index = ((mem.io[LY] as usize * 160) + self.lx as usize) * 3;
-                if (alu::read_bits(mem.io[LCDC], 0, 1) == 0
-                    && self.mode == PPUMode::Draw(DrawLayer::Bg))
-                    || alu::read_bits(mem.io[LCDC], 7, 1) == 0
+                if alu::read_bits(mem.io[LCDC], 0, 1) == 0
+                    && self.mode == PPUMode::Draw(DrawLayer::Bg)
                 {
                     self.framebuffer[framebuffer_index..framebuffer_index + 3]
                         .copy_from_slice(&[0xFF, 0xFF, 0xFF]);

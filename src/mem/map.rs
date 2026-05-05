@@ -28,7 +28,7 @@ impl Memory {
         }
     }
     pub fn init_rom(rom: Vec<u8>, header_data: ROMInfo) -> Self {
-        Self {
+        let mut mem = Self {
             vram: vec![vec![0; 0x2000]; 2],
             active_vram: 0,
             wram: vec![vec![0; 0x2000]; 8],
@@ -38,7 +38,9 @@ impl Memory {
             hram: vec![0; 0x7F],
             ie: 0,
             controller: Self::create_controller(rom, header_data),
-        }
+        };
+        mem.io[0x40] = 0x91;
+        mem
     }
     pub fn dma_read(&self, addr: usize) -> Result<u8, GBError> {
         match addr {
