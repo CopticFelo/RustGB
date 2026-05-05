@@ -169,6 +169,7 @@ impl SM83 {
                 bus.tick();
                 bus.tick();
                 let target_address = (0x40 + 8 * i) as u16;
+                log::debug!("INT {:#X}", target_address);
                 bus.registers.sp -= 1;
                 bus.write(bus.registers.sp, (bus.registers.pc >> 8) as u8)?;
                 bus.registers.sp -= 1;
